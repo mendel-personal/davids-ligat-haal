@@ -1,0 +1,807 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>David's Ligat Ha'Al</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2232%22%20fill%3D%22%23111%22/%3E%3Cg%20transform%3D%22translate%286%205%29%20scale%28.82%29%22%20fill%3D%22%23f5c400%22%20stroke%3D%22%23f5c400%22%3E%3Cpath%20d%3D%22M18%208h28v14c0%209-6%2016-14%2016S18%2031%2018%2022z%22/%3E%3Cpath%20d%3D%22M18%2012h-7v4c0%206%204%2010%209%2010M46%2012h7v4c0%206-4%2010-9%2010%22%20fill%3D%22none%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22/%3E%3Crect%20x%3D%2229%22%20y%3D%2237%22%20width%3D%226%22%20height%3D%228%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2245%22%20width%3D%2222%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2251%22%20width%3D%2230%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a single fixture board — sticky control bar, then one block per matchday with match rows on a 3-column grid (home | score/time | away). Mirrors for Hebrew (RTL). */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #141a24;
+  --muted: #5d6878;
+  --line: #dde2ea;
+  --accent: #1d4fb8;
+  --accent-soft: #e4ecfb;
+  --live: #d22f2f;
+  --beitar-yellow: #f5c400;
+  --beitar-black: #111111;
+  --heart-outline: #111111;
+  --display: "Barlow Condensed", "IBM Plex Sans Hebrew", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "IBM Plex Sans Hebrew", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e131b; --surface: #161d28; --ink: #e8edf5; --muted: #8e9aac;
+    --line: #253041; --accent: #7aa2f0; --accent-soft: #1b2a45; --live: #ff6b6b; --heart-outline: #f5c400;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e131b; --surface: #161d28; --ink: #e8edf5; --muted: #8e9aac;
+  --line: #253041; --accent: #7aa2f0; --accent-soft: #1b2a45; --live: #ff6b6b; --heart-outline: #f5c400;
+  color-scheme: dark;
+}
+:root[lang="he"] {
+  --display: "IBM Plex Sans Hebrew", system-ui, sans-serif;
+  --body: "IBM Plex Sans Hebrew", "IBM Plex Sans", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+/* Beitar crest as a faded, fixed watermark behind the whole app. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: var(--crest, none) center 55% / min(78vw, 620px) no-repeat;
+  opacity: .08;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body::before { opacity: .1; } }
+:root[data-theme="dark"] body::before { opacity: .1; }
+.wrap { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; }
+
+header.top { display: grid; gap: 6px; padding-bottom: 20px; }
+.top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.eyebrow { font-family: var(--display); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-size: 14px; }
+.lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); flex: none; }
+.lang button { font: 600 13px var(--body); color: var(--muted); background: none; border: 0; padding: 5px 12px; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(40px, 9vw, 64px); line-height: .95; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h1 .alt { display: block; font-family: var(--body); font-weight: 500; font-size: .36em; color: var(--muted); margin-top: .3em; letter-spacing: 0; }
+:root[dir="rtl"] h1 .alt { text-align: right; }
+:root[dir="ltr"] h1 .alt { text-align: left; }
+.progress { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; color: var(--muted); font-size: 14px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.bar { flex: 1 1 160px; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; max-width: 260px; }
+.bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .4s ease; }
+
+.controls {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); padding-block: 12px; border-bottom: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { font: 500 14px var(--body); color: var(--muted); background: none; border: 0; padding: 8px 14px; cursor: pointer; }
+.seg button + button { border-inline-start: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+select, .btn {
+  font: 500 14px var(--body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; min-width: 0;
+}
+select { flex: 1 1 180px; max-width: 280px; }
+.btn { color: var(--accent); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.round { margin-top: 28px; scroll-margin-top: 80px; }
+.round-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
+.round-head h2 { font-family: var(--display); font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; letter-spacing: .02em; }
+.round-head .dates { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.round.current .round-head h2::after { content: attr(data-next); font: 600 11px var(--body); letter-spacing: .1em; text-transform: uppercase; background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 4px; margin-inline-start: 10px; vertical-align: middle; }
+
+.day { font: 600 12px var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 14px 0 6px; }
+.match {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+  background: color-mix(in srgb, var(--surface) 86%, transparent); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 6px;
+}
+.team { display: flex; align-items: center; gap: 10px; min-width: 0; font-weight: 500; }
+button.team { font: inherit; color: inherit; background: none; border: 0; padding: 4px; margin: -4px; border-radius: 8px; cursor: pointer; text-align: start; }
+button.team:hover .tname > span:first-child { text-decoration: underline; text-underline-offset: 3px; }
+button.team:hover { background: var(--accent-soft); }
+.team.home { justify-content: flex-end; text-align: end; }
+.team span { min-width: 0; overflow-wrap: anywhere; }
+.tname { display: grid; gap: 1px; min-width: 0; }
+.pts { font-size: 12px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+/* Champions banner: always Beitar black and yellow, in both themes. */
+.banner {
+  position: relative; overflow: hidden; border-radius: 14px; margin-bottom: 22px;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 22px, rgba(245, 196, 0, .09) 22px 44px),
+    var(--beitar-black);
+  color: var(--beitar-yellow);
+  display: flex; align-items: center; gap: 18px; padding: 22px 24px;
+  border: 2px solid var(--beitar-yellow);
+}
+.banner .cup { width: 84px; height: 84px; flex: none; position: relative; z-index: 1; filter: drop-shadow(0 4px 14px rgba(245, 196, 0, .45)); }
+.banner .cup * { fill: var(--beitar-yellow); stroke: var(--beitar-yellow); }
+.banner .cup .shine { fill: var(--beitar-black); stroke: none; }
+.banner .words { position: relative; z-index: 1; display: grid; gap: 4px; min-width: 0; background: var(--beitar-black); border-radius: 10px; box-shadow: 0 0 18px 12px var(--beitar-black); }
+.banner .kicker { font: 600 13px var(--body); letter-spacing: .14em; text-transform: uppercase; color: #fff; opacity: .85; }
+.banner .big { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 6.5vw, 46px); line-height: 1; text-transform: uppercase; text-wrap: balance; }
+.banner .club { font: 500 15px var(--body); color: #fff; }
+.confetti { position: absolute; inset: 0; pointer-events: none; }
+.confetti i { position: absolute; width: 6px; height: 11px; border-radius: 1px; opacity: .9; }
+:root[lang="he"] .banner .kicker, :root[lang="he"] .banner .big { letter-spacing: 0; }
+@media (max-width: 520px) { .banner { padding: 18px 16px; gap: 12px; } .banner .cup { width: 60px; height: 60px; } }
+.mark { margin-inline-start: .3em; font-size: .95em; }
+.heart { width: 1em; height: 1em; margin-inline-start: .3em; vertical-align: -.14em; }
+.heart path { fill: url(#beitarSplit); stroke: var(--heart-outline); stroke-width: 1.4; stroke-linejoin: round; }
+.stop-y { stop-color: var(--beitar-yellow); }
+.stop-b { stop-color: var(--beitar-black); }
+.odds { font-weight: 500; color: var(--muted); cursor: help; }
+.cap { font-size: 12px; font-weight: 400; color: var(--muted); }
+.team img { width: 28px; height: 28px; object-fit: contain; flex: none; }
+.team.won { font-weight: 600; }
+.team.lost { color: var(--muted); }
+.mid { display: grid; justify-items: center; gap: 2px; min-width: 76px; }
+.score { display: flex; gap: .4em; font-family: var(--mono); font-weight: 600; font-size: 20px; font-variant-numeric: tabular-nums; }
+.mdate { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.kick { font-family: var(--mono); font-weight: 500; font-size: 17px; color: var(--accent); }
+.kick.tbc { font-family: var(--body); font-size: 15px; }
+.tag { font: 600 10px var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.tag.live { color: var(--live); }
+.tag.live::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--live); margin-inline-end: 5px; vertical-align: 1px; animation: pulse 1.4s infinite; }
+.venue { grid-column: 1 / -1; text-align: center; font-size: 12px; color: var(--muted); margin-top: -4px; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .tag.live::before { animation: none; } .bar i { transition: none; } }
+
+/* Hebrew has no case and reads badly letter-spaced. */
+:root[lang="he"] .eyebrow, :root[lang="he"] .tag, :root[lang="he"] .day,
+:root[lang="he"] .round-head h2, :root[lang="he"] .round.current .round-head h2::after { letter-spacing: 0; }
+:root[lang="he"] .tag { font-size: 11px; }
+:root[lang="he"] .day { font-size: 13px; }
+
+.state { padding: 48px 0; text-align: center; color: var(--muted); }
+.state button { margin-top: 12px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 12px; text-align: center; }
+footer a { color: var(--muted); }
+
+/* Team panel: a side sheet with this season's numbers and the club's history. */
+dialog.club {
+  margin: 0; margin-inline-start: auto; height: 100%; max-height: none; width: min(640px, 100%); max-width: 100%;
+  padding: 0; border: 0; border-inline-start: 1px solid var(--line);
+  background: var(--bg); color: var(--ink);
+}
+dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
+.club-inner { display: grid; gap: 22px; padding-inline: 20px; padding-block: calc(16px + env(safe-area-inset-top, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)); }
+.club-top { display: flex; align-items: center; gap: 16px; }
+.club-top img { width: 72px; height: 72px; object-fit: contain; flex: none; }
+.club-top .who { display: grid; gap: 4px; min-width: 0; flex: 1; }
+.club-top h2 { font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1; margin: 0; text-wrap: balance; }
+.club-top .facts { color: var(--muted); font-size: 14px; }
+.club-close { align-self: flex-start; font: 600 20px var(--body); line-height: 1; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; flex: none; }
+.club h3 { font-family: var(--display); font-weight: 700; font-size: 20px; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
+:root[lang="he"] .club h3 { letter-spacing: 0; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.stat b { font-family: var(--mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); }
+.club .row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.history { max-width: 65ch; }
+.history p { margin: 0 0 12px; line-height: 1.65; }
+.history h4 { font: 600 16px var(--body); margin: 20px 0 8px; }
+.history h5 { font: 600 14px var(--body); color: var(--muted); margin: 16px 0 6px; }
+.history .src { font-size: 13px; color: var(--muted); }
+.history .src a { color: var(--accent); }
+
+@media (max-width: 520px) {
+  .club-top img { width: 56px; height: 56px; }
+  .club-top h2 { font-size: 28px; }
+  .match { gap: 8px; padding: 10px; }
+  .team { flex-direction: column; gap: 4px; font-size: 13px; text-align: center; }
+  .team.home { flex-direction: column-reverse; justify-content: center; text-align: center; }
+  .team img { width: 26px; height: 26px; }
+  .mid { min-width: 60px; }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="beitarSplit" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="50%" class="stop-y"></stop>
+      <stop offset="50%" class="stop-b"></stop>
+    </linearGradient>
+  </defs>
+</svg>
+<div class="wrap">
+  <section class="banner" aria-label="Beitar Jerusalem champions">
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+    <svg class="cup" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M18 8h28v14c0 9-6 16-14 16S18 31 18 22z"/><path d="M18 12h-7v4c0 6 4 10 9 10M46 12h7v4c0 6-4 10-9 10" fill="none" stroke-width="3.5" stroke-linecap="round"/><rect x="29" y="37" width="6" height="8"/><rect x="21" y="45" width="22" height="6" rx="1.5"/><rect x="17" y="51" width="30" height="6" rx="1.5"/><path class="shine" d="M32 13l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z"/></svg>
+    <div class="words">
+      <span class="kicker" data-t="bannerKicker">Ligat Ha'Al 2026/27</span>
+      <span class="big" data-t="bannerBig">Champions!</span>
+      <span class="club" data-t="bannerClub">Beitar Jerusalem</span>
+    </div>
+  </section>
+
+  <header class="top">
+    <div class="top-row">
+      <div class="eyebrow" data-t="eyebrow">Israeli Premier League · 2026/27</div>
+      <div class="lang" role="group" aria-label="Language">
+        <button id="lang-en" data-lang="en" lang="en" aria-pressed="true">English</button>
+        <button id="lang-he" data-lang="he" lang="he" aria-pressed="false">עברית</button>
+      </div>
+    </div>
+    <h1><span id="title">David's Ligat Ha'Al</span><span class="alt" id="titleAlt" lang="he" dir="rtl">ליגת העל של דוד</span></h1>
+    <div class="progress">
+      <span id="played">Loading fixtures…</span>
+      <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+      <span data-t="tz">Times in Israel time</span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="seg" role="group" id="segGroup">
+      <button id="f-all" data-filter="all" data-t="all" aria-pressed="true">All</button>
+      <button id="f-up" data-filter="upcoming" data-t="upcoming" aria-pressed="false">Upcoming</button>
+      <button id="f-res" data-filter="results" data-t="results" aria-pressed="false">Results</button>
+    </div>
+    <select id="team"><option value="">All teams</option></select>
+    <button class="btn" id="jump" data-t="jump">Jump to next round</button>
+  </div>
+
+  <main id="list"><div class="state" data-t="loading">Loading fixtures…</div></main>
+
+  <dialog class="club" id="club" aria-labelledby="clubName"><div class="club-inner" id="clubBody"></div></dialog>
+
+  <footer><span data-t="source">Data from</span> <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a>. <span data-t="footer">Regular season, 14 clubs, 26 rounds. Playoff rounds appear once they're scheduled.</span><br><span data-t="oddsNote">Title chances are estimates from 10,000 simulated seasons based on results so far. They are not bookmaker odds.</span></footer>
+</div>
+
+<script>
+(() => {
+  const LEAGUE = 4644;
+  const SEASON = "2026-2027";
+  const API = "https://www.thesportsdb.com/api/v1/json/123/eventsround.php";
+  const CACHE_KEY = "ligat-haal-" + SEASON;
+  const CACHE_MS = 10 * 60 * 1000;
+  const TZ = "Asia/Jerusalem";
+  const LIVE = new Set(["1H", "HT", "2H", "ET", "BT", "P", "LIVE"]);
+  const DONE = new Set(["FT", "AET", "PEN", "AWD", "WO"]);
+
+  const STR = {
+    en: {
+      bannerKicker: "Ligat Ha'Al 2026/27", bannerBig: "Champions!", bannerClub: "Beitar Jerusalem", bannerLabel: "Beitar Jerusalem champions",
+      eyebrow: "Israeli Premier League · 2026/27", title: "David's Ligat Ha'Al", titleAlt: "ליגת העל של דוד", titleAltLang: "he",
+      tz: "Times in Israel time", all: "All", upcoming: "Upcoming", results: "Results", allTeams: "All teams",
+      jump: "Jump to next round", loading: "Loading fixtures…", source: "Data from",
+      footer: "Regular season, 14 clubs, 26 rounds. Playoff rounds appear once they're scheduled.",
+      oddsNote: "Title chances are estimates from 10,000 simulated seasons based on results so far. They are not bookmaker odds.",
+      titleChance: (p) => `${p} title chance`, titleHelp: "Estimated chance of winning the league, from 10,000 simulated seasons",
+      points: (n) => `${n} ${n === 1 ? "pt" : "pts"}`, captain: (n) => `Captain: ${n}`,
+      clubOpen: (n) => `Open ${n} details and history`, close: "Close",
+      founded: (y) => `Founded ${y}`, thisSeason: "This season", position: "Position", pointsLabel: "Points",
+      posOf: (p, n) => `${p} of ${n}`, record: "Won · Drawn · Lost", goalsFor: "Goals scored", goalsAgainst: "Goals conceded", titleLabel: "Title chance",
+      showMatches: "Show this team's matches", history: "Club history", historyLoading: "Loading the club's history…",
+      historyFail: "Couldn't load the history from Wikipedia. Check your connection and try again.",
+      historySource: "From Wikipedia, the free encyclopedia.", readFull: "Read the full article", show: "Show", teamFilter: "Filter by team", langLabel: "Language",
+      loadingRound: (n, t) => `Loading round ${n} of ${t}…`,
+      played: (p, t) => `${p} of ${t} matches played`,
+      round: (r) => `Round ${r}`, playoff: (r) => `Playoff round ${r}`, nextUp: "Next up",
+      fullTime: "Full time", halfTime: "Half time", live: "Live", kickOff: "Kick-off", postponed: "Postponed", tbc: "TBC",
+      none: "No matches for this filter.", loadFail: "Couldn't load fixtures",
+      error: (m) => `The match data service didn't respond (${m}). Check your connection and try again.`, retry: "Try again",
+    },
+    he: {
+      bannerKicker: "ליגת העל 2026/27", bannerBig: "אלופים!", bannerClub: 'בית"ר ירושלים', bannerLabel: 'בית"ר ירושלים אלופת המדינה',
+      eyebrow: "הליגה הישראלית לכדורגל · עונת 2026/27", title: "ליגת העל של דוד", titleAlt: "David's Ligat Ha'Al", titleAltLang: "en",
+      tz: "השעות לפי שעון ישראל", all: "הכל", upcoming: "משחקים הבאים", results: "תוצאות", allTeams: "כל הקבוצות",
+      jump: "למחזור הבא", loading: "טוען משחקים…", source: "הנתונים מ־",
+      footer: "עונה סדירה, 14 קבוצות, 26 מחזורים. מחזורי הפלייאוף יופיעו לאחר שייקבעו.",
+      oddsNote: "סיכויי האליפות הם הערכה המבוססת על 10,000 הדמיות של המשך העונה לפי התוצאות עד כה. אלה אינם יחסי הימורים.",
+      titleChance: (p) => `${p} לאליפות`, titleHelp: "הסיכוי המשוער לזכות באליפות, לפי 10,000 הדמיות של המשך העונה",
+      points: (n) => n === 1 ? "נקודה אחת" : `${n} נק׳`, captain: (n) => `קפטן: ${n}`,
+      clubOpen: (n) => `פרטים והיסטוריה של ${n}`, close: "סגירה",
+      founded: (y) => `נוסדה ב־${y}`, thisSeason: "העונה", position: "מקום בטבלה", pointsLabel: "נקודות",
+      posOf: (p, n) => `${p} מתוך ${n}`, record: "ניצחון · תיקו · הפסד", goalsFor: "שערי זכות", goalsAgainst: "שערי חובה", titleLabel: "סיכוי לאליפות",
+      showMatches: "הצג את המשחקים של הקבוצה", history: "תולדות המועדון", historyLoading: "טוען את תולדות המועדון…",
+      historyFail: "לא ניתן לטעון את ההיסטוריה מוויקיפדיה. בדקו את החיבור ונסו שוב.",
+      historySource: "מתוך ויקיפדיה, האנציקלופדיה החופשית.", readFull: "לערך המלא", show: "הצג", teamFilter: "סינון לפי קבוצה", langLabel: "שפה",
+      loadingRound: (n, t) => `טוען מחזור ${n} מתוך ${t}…`,
+      played: (p, t) => `שוחקו ${p} מתוך ${t} משחקים`,
+      round: (r) => `מחזור ${r}`, playoff: (r) => `פלייאוף · מחזור ${r}`, nextUp: "המחזור הבא",
+      fullTime: "סיום", halfTime: "מחצית", live: "בשידור חי", kickOff: "שריקת פתיחה", postponed: "נדחה", tbc: "טרם נקבע",
+      none: "אין משחקים שמתאימים לסינון.", loadFail: "לא ניתן לטעון את המשחקים",
+      error: (m) => `שירות הנתונים לא הגיב (${m}). בדקו את החיבור ונסו שוב.`, retry: "נסו שוב",
+    },
+  };
+
+  const TEAM_HE = {
+    "Beitar Jerusalem": 'בית"ר ירושלים',
+    "Bnei Sakhnin": "בני סכנין",
+    "Hapoel Be'er Sheva": "הפועל באר שבע",
+    "Hapoel Beer Sheva": "הפועל באר שבע",
+    "Hapoel Haifa": "הפועל חיפה",
+    "Hapoel Ironi Kiryat Shmona": "הפועל עירוני קריית שמונה",
+    "Ironi Kiryat Shmona": "עירוני קריית שמונה",
+    "Hapoel Jerusalem": "הפועל ירושלים",
+    "Hapoel Petah Tikva": "הפועל פתח תקווה",
+    "Hapoel Ramat Gan": "הפועל רמת גן",
+    "Hapoel Tel-Aviv": "הפועל תל אביב",
+    "Hapoel Tel Aviv": "הפועל תל אביב",
+    "Ironi Tiberias": "עירוני טבריה",
+    "Maccabi Haifa": "מכבי חיפה",
+    "Maccabi Netanya": "מכבי נתניה",
+    "Maccabi Petah Tikva": "מכבי פתח תקווה",
+    "Maccabi Tel Aviv": "מכבי תל אביב",
+    "Maccabi Bnei Reineh": "מכבי בני ריינה",
+    "Hapoel Hadera": "הפועל חדרה",
+    "Ashdod": "מ.ס. אשדוד",
+  };
+  // Club captains for 2026/27, from the clubs' Wikipedia squad lists (Aug 2026).
+  // Clubs missing here show no captain line until a name is added.
+  const CAPTAINS = {
+    "Beitar Jerusalem": ["Yarden Shua", "ירדן שועה"],
+    "Hapoel Be'er Sheva": ["Miguel Vítor", "מיגל ויטור"],
+    "Hapoel Haifa": ["Dor Malul", "דור מלול"],
+    "Hapoel Jerusalem": ["Omer Agbadish", "עומר אגבדיש"],
+    "Hapoel Petah Tikva": ["Omer Katz", "עומר כץ"],
+    "Hapoel Tel-Aviv": ["Fernand Mayembo", "פרננד מאיימבו"],
+    "Maccabi Haifa": ["Kenji Gorré", "קנג'י גורה"],
+    "Maccabi Netanya": ["Karem Jaber", "כארם ג'אבר"],
+    "Maccabi Tel Aviv": ["Dor Peretz", "דור פרץ"],
+  };
+  // Wikipedia article for each club: [English, Hebrew].
+  const WIKI = {
+    "Beitar Jerusalem": ["Beitar Jerusalem F.C.", 'בית"ר ירושלים'],
+    "Bnei Sakhnin": ["Bnei Sakhnin F.C.", "בני סכנין"],
+    "Hapoel Be'er Sheva": ["Hapoel Be'er Sheva F.C.", "הפועל באר שבע"],
+    "Hapoel Haifa": ["Hapoel Haifa F.C.", "הפועל חיפה (כדורגל)"],
+    "Hapoel Ironi Kiryat Shmona": ["Hapoel Ironi Kiryat Shmona F.C.", "עירוני קריית שמונה"],
+    "Hapoel Jerusalem": ["Hapoel Jerusalem F.C.", "הפועל ירושלים (כדורגל)"],
+    "Hapoel Petah Tikva": ["Hapoel Petah Tikva F.C.", "הפועל פתח תקווה (כדורגל)"],
+    "Hapoel Ramat Gan": ["Hapoel Ramat Gan Givatayim F.C.", "הפועל רמת-גן (כדורגל)"],
+    "Hapoel Tel-Aviv": ["Hapoel Tel Aviv F.C.", "הפועל תל אביב (כדורגל)"],
+    "Ironi Tiberias": ["Ironi Tiberias F.C.", "עירוני טבריה"],
+    "Maccabi Haifa": ["Maccabi Haifa F.C.", "מכבי חיפה (כדורגל)"],
+    "Maccabi Netanya": ["Maccabi Netanya F.C.", "מכבי נתניה"],
+    "Maccabi Petah Tikva": ["Maccabi Petah Tikva F.C.", "מכבי פתח תקווה (כדורגל)"],
+    "Maccabi Tel Aviv": ["Maccabi Tel Aviv F.C.", "מכבי תל אביב (כדורגל)"],
+  };
+
+  // Symbols shown next to a club's name.
+  const HEART = `<svg class="heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.4-4.5-9.4-9C1.1 8.1 3.2 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3.1 1.6-1.9 3.1-3.1 5.2-3.1 3.6 0 5.7 3.6 4.2 7-2 4.5-9.4 9-9.4 9z"></path></svg>`;
+  const TEAM_MARKS = {
+    "Beitar Jerusalem": HEART,
+    "Maccabi Tel Aviv": `<span class="mark" aria-hidden="true">🤮</span>`,
+  };
+
+  const VENUE_HE = {
+    "Bloomfield Stadium": "אצטדיון בלומפילד",
+    "Doha Stadium": "אצטדיון דוחא",
+    "Green Stadium Nof HaGalil": "אצטדיון גרין, נוף הגליל",
+    "HaMoshava Stadium": "אצטדיון המושבה",
+    "Netanya Stadium": "אצטדיון נתניה",
+    "Ramat Gan Stadium": "אצטדיון רמת גן",
+    "Sammy Ofer Stadium": "אצטדיון סמי עופר",
+    "Teddy Stadium": "אצטדיון טדי",
+    "Turner Stadium": "אצטדיון טרנר",
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const state = { title: new Map(), points: new Map(), matches: [], filter: "all", team: "", lang: "en", loaded: false, error: null };
+
+  try {
+    const s = JSON.parse(localStorage.getItem("ligat-haal-prefs") || "{}");
+    state.filter = s.filter || "all"; state.team = s.team || "";
+    state.lang = s.lang || ((navigator.language || "").toLowerCase().startsWith("he") ? "he" : "en");
+  } catch {}
+  const savePrefs = () => { try { localStorage.setItem("ligat-haal-prefs", JSON.stringify({ filter: state.filter, team: state.team, lang: state.lang })); } catch {} };
+
+  const t = () => STR[state.lang];
+  const teamName = (n) => state.lang === "he" ? (TEAM_HE[n] || n) : n;
+  const venueName = (v) => state.lang === "he" ? (VENUE_HE[v] || v) : v;
+
+  let fmt;
+  function makeFormats() {
+    const loc = state.lang === "he" ? "he-IL" : "en-GB";
+    fmt = {
+      day: new Intl.DateTimeFormat(loc, { timeZone: TZ, weekday: "long", day: "numeric", month: "long" }),
+      short: new Intl.DateTimeFormat(loc, { timeZone: TZ, day: "numeric", month: "short" }),
+      match: new Intl.DateTimeFormat(loc, { timeZone: TZ, weekday: "short", day: "numeric", month: "short" }),
+      time: new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit" }),
+    };
+  }
+  const dayKey = (d) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(d);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function fetchRound(r, tries = 3) {
+    const res = await fetch(`${API}?id=${LEAGUE}&r=${r}&s=${SEASON}`);
+    if (res.status === 429 && tries > 0) { await sleep(2500); return fetchRound(r, tries - 1); }
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const d = await res.json();
+    return d.events || [];
+  }
+
+  async function loadAll() {
+    try {
+      const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+      if (c && Date.now() - c.t < CACHE_MS) return c.events;
+    } catch {}
+    const events = [];
+    // Regular season: 26 rounds, a few at a time to stay under the free API's rate limit.
+    const rounds = Array.from({ length: 26 }, (_, i) => i + 1);
+    for (let i = 0; i < rounds.length; i += 4) {
+      const batch = await Promise.all(rounds.slice(i, i + 4).map((r) => fetchRound(r)));
+      batch.forEach((e) => events.push(...e));
+      $("played").textContent = t().loadingRound(Math.min(i + 4, 26), 26);
+    }
+    // Playoff rounds (27+) only exist once scheduled; stop at the first empty one.
+    for (let r = 27; r <= 40; r++) {
+      const e = await fetchRound(r);
+      if (!e.length) break;
+      events.push(...e);
+    }
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), events })); } catch {}
+    return events;
+  }
+
+  function normalize(e) {
+    const ts = e.strTimestamp ? new Date(e.strTimestamp + (/[Z+]/.test(e.strTimestamp) ? "" : "Z")) : new Date(e.dateEvent + "T12:00:00Z");
+    const status = (e.strStatus || "NS").toUpperCase();
+    const postponed = e.strPostponed === "yes" || status === "PST" || status === "CANC";
+    const hs = e.intHomeScore, as = e.intAwayScore;
+    return {
+      id: e.idEvent, round: +e.intRound || 0, date: ts, homeId: e.idHomeTeam, awayId: e.idAwayTeam,
+      home: e.strHomeTeam, away: e.strAwayTeam,
+      homeBadge: e.strHomeTeamBadge, awayBadge: e.strAwayTeamBadge,
+      hs: hs === null || hs === "" ? null : +hs, as: as === null || as === "" ? null : +as,
+      venue: e.strVenue, status, postponed,
+      live: LIVE.has(status), done: DONE.has(status),
+      noTime: !e.strTime || e.strTime === "00:00:00",
+    };
+  }
+
+  function teamCell(name, badge, side, cls) {
+    const img = badge ? `<img src="${esc(badge)}/tiny" alt="" loading="lazy" onerror="this.onerror=null;this.src='${esc(badge)}'">` : "";
+    const cap = CAPTAINS[name];
+    const capLine = cap ? `<small class="cap">${esc(t().captain(cap[state.lang === "he" ? 1 : 0]))}</small>` : "";
+    const odds = state.title.has(name) ? ` <span class="odds" title="${esc(t().titleHelp)}">· ${t().titleChance(pctHtml(state.title.get(name)))}</span>` : "";
+    const ptsLine = state.points.has(name) ? `<small class="pts">${t().points(state.points.get(name))}${odds}</small>` : "";
+    const label = `<span class="tname"><span>${esc(teamName(name))}${TEAM_MARKS[name] || ""}</span>${ptsLine}${capLine}</span>`;
+    return `<button type="button" class="team ${side} ${cls}" data-team="${esc(name)}" aria-label="${esc(t().clubOpen(teamName(name)))}">${side === "home" ? label + img : img + label}</button>`;
+  }
+
+  function matchRow(m) {
+    const s = t();
+    let mid, hc = "", ac = "";
+    if (m.postponed) mid = `<span class="tag">${s.postponed}</span>`;
+    else if (m.hs !== null && (m.done || m.live)) {
+      // Separate spans so the home score always sits beside the home team, in either direction.
+      mid = `<span class="score"><span>${m.hs}</span><span>–</span><span>${m.as}</span></span><span class="tag ${m.live ? "live" : ""}">${m.live ? (m.status === "HT" ? s.halfTime : s.live) : s.fullTime}</span>`;
+      if (m.done && m.hs !== m.as) { hc = m.hs > m.as ? "won" : "lost"; ac = m.hs > m.as ? "lost" : "won"; }
+    } else mid = m.noTime
+      ? `<span class="kick tbc">${s.tbc}</span><span class="tag">${s.kickOff}</span>`
+      : `<span class="kick">${fmt.time.format(m.date)}</span><span class="tag">${s.kickOff}</span>`;
+    return `<div class="match">${teamCell(m.home, m.homeBadge, "home", hc)}<div class="mid"><span class="mdate">${fmt.match.format(m.date)}</span>${mid}</div>${teamCell(m.away, m.awayBadge, "away", ac)}${m.venue ? `<div class="venue">${esc(venueName(m.venue))}</div>` : ""}</div>`;
+  }
+
+  // Estimated title chances: Monte Carlo over the remaining fixtures.
+  // Each team's attack/defence comes from goals so far, pulled toward the league
+  // average (worth ~12 games) so early-season results don't dominate. Goals are
+  // Poisson with a home edge. If the playoff isn't scheduled yet, the top 6 after
+  // round 26 play each other home and away, carrying all their points over.
+  function titleChances(matches, sims = 10000) {
+    const teams = [...new Set(matches.flatMap((m) => [m.home, m.away]))];
+    const n = teams.length;
+    if (!n) return new Map();
+    const idx = new Map(teams.map((tm, i) => [tm, i]));
+    const pts = new Float64Array(n), gd = new Float64Array(n), gf = new Float64Array(n), ga = new Float64Array(n), gp = new Float64Array(n);
+    const played = matches.filter((m) => m.done && m.hs !== null);
+    played.forEach((m) => {
+      const h = idx.get(m.home), a = idx.get(m.away);
+      gf[h] += m.hs; ga[h] += m.as; gf[a] += m.as; ga[a] += m.hs; gp[h]++; gp[a]++;
+      gd[h] += m.hs - m.as; gd[a] += m.as - m.hs;
+      if (m.hs > m.as) pts[h] += 3; else if (m.hs < m.as) pts[a] += 3; else { pts[h]++; pts[a]++; }
+    });
+    const totalGp = gp.reduce((x, y) => x + y, 0);
+    const avg = totalGp ? gf.reduce((x, y) => x + y, 0) / totalGp : 1.3;
+    const K = 12, HOME = 1.12, AWAY = 0.9;
+    const att = teams.map((_, i) => (gf[i] + K * avg) / (gp[i] + K) / avg);
+    const def = teams.map((_, i) => (ga[i] + K * avg) / (gp[i] + K) / avg);
+    const remaining = matches.filter((m) => !(m.done && m.hs !== null)).map((m) => [idx.get(m.home), idx.get(m.away)]);
+    const needPlayoff = !matches.some((m) => m.round > 26);
+
+    let seed = 20262027; // fixed seed: same data gives the same numbers on every load
+    const rng = () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+    const poisson = (lam) => { const L = Math.exp(-lam); let k = 0, p = 1; do { k++; p *= rng(); } while (p > L); return k - 1; };
+    const play = (h, a, P, G) => {
+      const x = poisson(avg * HOME * att[h] * def[a]), y = poisson(avg * AWAY * att[a] * def[h]);
+      G[h] += x - y; G[a] += y - x;
+      if (x > y) P[h] += 3; else if (x < y) P[a] += 3; else { P[h]++; P[a]++; }
+    };
+    const rank = (P, G) => teams.map((_, i) => [i, P[i] * 1000 + G[i] + rng() * 0.5]).sort((u, v) => v[1] - u[1]).map((u) => u[0]);
+
+    const wins = new Float64Array(n);
+    for (let s = 0; s < sims; s++) {
+      const P = pts.slice(), G = gd.slice();
+      for (const [h, a] of remaining) play(h, a, P, G);
+      if (needPlayoff && n > 6) {
+        const top = rank(P, G).slice(0, 6);
+        for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) if (i !== j) play(top[i], top[j], P, G);
+      }
+      wins[rank(P, G)[0]]++;
+    }
+    return new Map(teams.map((tm, i) => [tm, wins[i] / sims]));
+  }
+  // Percent as an isolated left-to-right run, so "<1%" doesn't flip inside Hebrew text.
+  const pctHtml = (p) => `<bdi dir="ltr">${esc(fmtPct(p))}</bdi>`;
+  const fmtPct = (p) => p >= 1 ? "100%" : p > 0.995 ? ">99%" : p < 0.005 ? "<1%" : Math.round(p * 100) + "%";
+
+  // Current league points: 3 for a win, 1 for a draw, finished matches only.
+  function tallyPoints(matches) {
+    const pts = new Map();
+    matches.forEach((m) => { pts.set(m.home, pts.get(m.home) || 0); pts.set(m.away, pts.get(m.away) || 0); });
+    matches.filter((m) => m.done && m.hs !== null).forEach((m) => {
+      if (m.hs > m.as) pts.set(m.home, pts.get(m.home) + 3);
+      else if (m.hs < m.as) pts.set(m.away, pts.get(m.away) + 3);
+      else { pts.set(m.home, pts.get(m.home) + 1); pts.set(m.away, pts.get(m.away) + 1); }
+    });
+    return pts;
+  }
+
+  const isResult = (m) => m.done || m.live;
+  function nextRound() {
+    const pending = state.matches.filter((m) => !m.done && !m.postponed);
+    return pending.length ? Math.min(...pending.map((m) => m.round)) : null;
+  }
+
+  function applyChrome() {
+    const s = t();
+    const root = document.documentElement;
+    root.lang = state.lang;
+    root.dir = state.lang === "he" ? "rtl" : "ltr";
+    document.querySelectorAll("[data-t]").forEach((el) => { const v = s[el.dataset.t]; if (typeof v === "string") el.textContent = v; });
+    $("title").textContent = s.title;
+    document.title = s.title;
+    const alt = $("titleAlt");
+    alt.textContent = s.titleAlt; alt.lang = s.titleAltLang; alt.dir = s.titleAltLang === "he" ? "rtl" : "ltr";
+    $("segGroup").setAttribute("aria-label", s.show);
+    document.querySelector(".banner").setAttribute("aria-label", s.bannerLabel);
+    $("team").setAttribute("aria-label", s.teamFilter);
+    document.querySelector(".lang").setAttribute("aria-label", s.langLabel);
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === state.lang));
+    makeFormats();
+  }
+
+  function summary() {
+    const s = t();
+    if (state.error) { $("played").textContent = s.loadFail; return; }
+    if (!state.loaded) { $("played").textContent = s.loading; return; }
+    const total = state.matches.length;
+    const played = state.matches.filter((m) => m.done).length;
+    $("played").textContent = s.played(played, total);
+    $("barFill").style.width = total ? (played / total * 100) + "%" : "0";
+    const teams = [...new Set(state.matches.flatMap((m) => [m.home, m.away]))]
+      .sort((a, b) => teamName(a).localeCompare(teamName(b), state.lang));
+    if (state.team && !teams.includes(state.team)) state.team = "";
+    $("team").innerHTML = `<option value="">${s.allTeams}</option>` + teams.map((n) => `<option value="${esc(n)}">${esc(teamName(n))}</option>`).join("");
+    $("team").value = state.team;
+  }
+
+  function render() {
+    const s = t();
+    const list = $("list");
+    document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.filter === state.filter));
+
+    if (state.error) {
+      list.innerHTML = `<div class="state">${esc(s.error(state.error))}<br><button class="btn" id="retry">${s.retry}</button></div>`;
+      $("retry").addEventListener("click", () => { state.error = null; summary(); render(); start(); });
+      return;
+    }
+    if (!state.loaded) { list.innerHTML = `<div class="state">${s.loading}</div>`; return; }
+
+    let ms = state.matches;
+    if (state.team) ms = ms.filter((m) => m.home === state.team || m.away === state.team);
+    if (state.filter === "upcoming") ms = ms.filter((m) => !isResult(m));
+    if (state.filter === "results") ms = ms.filter(isResult);
+    if (!ms.length) { list.innerHTML = `<div class="state">${s.none}</div>`; return; }
+
+    const cur = nextRound();
+    const byRound = new Map();
+    ms.forEach((m) => { if (!byRound.has(m.round)) byRound.set(m.round, []); byRound.get(m.round).push(m); });
+    const rounds = [...byRound.keys()].sort((a, b) => state.filter === "results" ? b - a : a - b);
+
+    list.innerHTML = rounds.map((r) => {
+      const rm = byRound.get(r).sort((a, b) => a.date - b.date);
+      const first = rm[0].date, last = rm[rm.length - 1].date;
+      const range = dayKey(first) === dayKey(last) ? fmt.short.format(first) : `${fmt.short.format(first)} – ${fmt.short.format(last)}`;
+      let html = "", lastDay = "";
+      rm.forEach((m) => {
+        const k = dayKey(m.date);
+        if (k !== lastDay) { html += `<div class="day">${fmt.day.format(m.date)}</div>`; lastDay = k; }
+        html += matchRow(m);
+      });
+      const label = r > 26 ? s.playoff(r) : s.round(r);
+      return `<section class="round ${r === cur ? "current" : ""}" id="round-${r}"><div class="round-head"><h2 data-next="${esc(s.nextUp)}">${label}</h2><span class="dates">${range}</span></div>${html}</section>`;
+    }).join("");
+  }
+
+  // ----- Team panel -----
+  const teamInfo = new Map();     // TheSportsDB team id -> { founded, stadium }
+  const historyCache = new Map(); // "lang|team" -> { html, link }
+
+  function standings() {
+    const rows = new Map();
+    const row = (n) => rows.get(n) || rows.set(n, { team: n, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 }).get(n);
+    state.matches.forEach((m) => { row(m.home); row(m.away); });
+    state.matches.filter((m) => m.done && m.hs !== null).forEach((m) => {
+      const h = row(m.home), a = row(m.away);
+      h.p++; a.p++; h.gf += m.hs; h.ga += m.as; a.gf += m.as; a.ga += m.hs;
+      if (m.hs > m.as) { h.w++; a.l++; h.pts += 3; } else if (m.hs < m.as) { a.w++; h.l++; a.pts += 3; } else { h.d++; a.d++; h.pts++; a.pts++; }
+    });
+    return [...rows.values()].sort((x, y) => y.pts - x.pts || (y.gf - y.ga) - (x.gf - x.ga) || y.gf - x.gf);
+  }
+
+  // Pull the "History" section out of a Wikipedia plain-text extract.
+  function historyHtml(text) {
+    const lines = text.split("\n");
+    const start = lines.findIndex((l) => /^==\s*(History|היסטוריה|תולדות[^=]*)\s*==$/.test(l.trim()));
+    const out = [];
+    // No History heading: fall back to the article's intro (start = -1 reads from the top).
+    for (let i = start + 1; i < lines.length; i++) {
+      const l = lines[i].trim();
+      if (/^==[^=].*[^=]==$/.test(l)) break;
+      if (!l) continue;
+      const h = l.match(/^(={3,})\s*(.*?)\s*=+$/);
+      if (h) out.push(h[1].length === 3 ? `<h4>${esc(h[2])}</h4>` : `<h5>${esc(h[2])}</h5>`);
+      else out.push(`<p>${esc(l)}</p>`);
+    }
+    // Drop headings left with nothing under them.
+    return out.filter((x, i) => !(x.startsWith("<h") && (i === out.length - 1 || out[i + 1].startsWith("<h")))).join("");
+  }
+
+  async function loadHistory(team, lang) {
+    const key = lang + "|" + team;
+    if (historyCache.has(key)) return historyCache.get(key);
+    const pages = WIKI[team];
+    if (!pages) return { error: true };
+    const host = lang === "he" ? "he.wikipedia.org" : "en.wikipedia.org";
+    try {
+      const url = `https://${host}/w/api.php?action=query&prop=extracts&explaintext=1&exsectionformat=wiki&redirects=1&format=json&origin=*&titles=${encodeURIComponent(pages[lang === "he" ? 1 : 0])}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const page = Object.values((await res.json()).query.pages)[0];
+      const html = historyHtml(page.extract || "");
+      if (!html) throw new Error("empty");
+      const result = { html, link: `https://${host}/wiki/${encodeURIComponent(page.title.replace(/ /g, "_"))}` };
+      historyCache.set(key, result);
+      return result;
+    } catch { return { error: true }; }
+  }
+
+  async function loadTeamInfo(id) {
+    if (!id) return null;
+    if (teamInfo.has(id)) return teamInfo.get(id);
+    try {
+      const d = await (await fetch(`https://www.thesportsdb.com/api/v1/json/123/lookupteam.php?id=${id}`)).json();
+      const tm = d.teams && d.teams[0];
+      const info = { founded: tm && tm.intFormedYear, stadium: tm && tm.strStadium };
+      teamInfo.set(id, info);
+      return info;
+    } catch { return null; }
+  }
+
+  let openTeam = null;
+  async function showClub(team) {
+    openTeam = team;
+    const s = t();
+    const lang = state.lang;
+    const any = state.matches.find((m) => m.home === team || m.away === team);
+    const id = any && (any.home === team ? any.homeId : any.awayId);
+    const badge = any && (any.home === team ? any.homeBadge : any.awayBadge);
+    const table = standings();
+    const pos = table.findIndex((r) => r.team === team) + 1;
+    const r = table[pos - 1] || { p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 };
+    const cap = CAPTAINS[team];
+    const capText = cap ? s.captain(cap[lang === "he" ? 1 : 0]) : "";
+    const stat = (v, label) => `<div class="stat"><b>${v}</b><span>${label}</span></div>`;
+
+    $("clubBody").innerHTML = `
+      <div class="club-top">
+        ${badge ? `<img src="${esc(badge)}/small" alt="" onerror="this.onerror=null;this.src='${esc(badge)}'">` : ""}
+        <div class="who">
+          <h2 id="clubName">${esc(teamName(team))}${TEAM_MARKS[team] || ""}</h2>
+          <div class="facts" id="clubFacts">${esc(capText)}</div>
+        </div>
+        <button type="button" class="club-close" id="clubClose" aria-label="${s.close}">×</button>
+      </div>
+      <section>
+        <h3>${s.thisSeason}</h3>
+        <div class="stats">
+          ${stat(pos ? s.posOf(pos, table.length) : "–", s.position)}
+          ${stat(r.pts, s.pointsLabel)}
+          ${stat(`${r.w} · ${r.d} · ${r.l}`, s.record)}
+          ${stat(r.gf, s.goalsFor)}
+          ${stat(r.ga, s.goalsAgainst)}
+          ${stat(state.title.has(team) ? pctHtml(state.title.get(team)) : "–", s.titleLabel)}
+        </div>
+        <div class="row-actions"><button type="button" class="btn" id="clubMatches">${s.showMatches}</button></div>
+      </section>
+      <section>
+        <h3>${s.history}</h3>
+        <div class="history" id="clubHistory"><p class="src">${s.historyLoading}</p></div>
+      </section>`;
+
+    $("clubClose").addEventListener("click", () => $("club").close());
+    $("clubMatches").addEventListener("click", () => {
+      state.team = team; state.filter = "all"; savePrefs(); summary(); render();
+      $("club").close(); window.scrollTo({ top: 0 });
+    });
+    const dlg = $("club");
+    if (!dlg.open) dlg.showModal();
+    dlg.scrollTop = 0;
+
+    loadTeamInfo(id).then((info) => {
+      if (openTeam !== team || state.lang !== lang || !info) return;
+      const bits = [];
+      if (info.founded) bits.push(s.founded(info.founded));
+      if (info.stadium) bits.push(venueName(info.stadium));
+      if (capText) bits.push(capText);
+      $("clubFacts").textContent = bits.join(" · ");
+    });
+    const h = await loadHistory(team, lang);
+    if (openTeam !== team || state.lang !== lang) return;
+    $("clubHistory").innerHTML = h.error
+      ? `<p class="src">${s.historyFail}</p>`
+      : h.html + `<p class="src">${s.historySource} <a href="${esc(h.link)}" target="_blank" rel="noopener">${s.readFull}</a></p>`;
+  }
+
+  $("list").addEventListener("click", (e) => {
+    const b = e.target.closest("button.team");
+    if (b) showClub(b.dataset.team);
+  });
+  // Clicking the dark area outside the panel closes it.
+  $("club").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+  $("club").addEventListener("close", () => { openTeam = null; });
+
+  function setLang(lang) {
+    if (lang === state.lang) return;
+    const y = window.scrollY;
+    state.lang = lang; savePrefs();
+    applyChrome(); summary(); render();
+    if (openTeam) showClub(openTeam);
+    window.scrollTo(0, y);
+  }
+
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
+  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { state.filter = b.dataset.filter; savePrefs(); render(); }));
+  $("team").addEventListener("change", (e) => { state.team = e.target.value; savePrefs(); render(); });
+  $("jump").addEventListener("click", () => {
+    const r = nextRound();
+    if (r === null) return;
+    if (!document.getElementById("round-" + r)) { state.filter = "all"; render(); }
+    document.getElementById("round-" + r)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  });
+
+  async function start() {
+    try {
+      const events = await loadAll();
+      state.matches = events.map(normalize).sort((a, b) => a.round - b.round || a.date - b.date);
+      state.points = tallyPoints(state.matches);
+      state.title = titleChances(state.matches);
+      const beitar = state.matches.find((m) => m.home === "Beitar Jerusalem" || m.away === "Beitar Jerusalem");
+      const crest = beitar && (beitar.home === "Beitar Jerusalem" ? beitar.homeBadge : beitar.awayBadge);
+      if (crest) document.documentElement.style.setProperty("--crest", `url("${crest}")`);
+      state.loaded = true;
+    } catch (err) {
+      state.error = err.message;
+    }
+    summary();
+    render();
+  }
+
+  (function confetti() {
+    let seed = 8;
+    const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const colors = ["#f5c400", "#ffffff", "#f5c400", "#ffe36b"];
+    $("confetti").innerHTML = Array.from({ length: 42 }, (_, i) =>
+      `<i style="left:${(r() * 100).toFixed(1)}%;top:${(r() * 100).toFixed(1)}%;background:${colors[i % 4]};transform:rotate(${Math.round(r() * 180)}deg)"></i>`).join("");
+  })();
+
+  applyChrome();
+  summary();
+  render();
+  start();
+})();
+</script>
