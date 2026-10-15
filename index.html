@@ -275,7 +275,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
       historyFail: "Couldn't load the history from Wikipedia. Check your connection and try again.",
       historySource: "From Wikipedia, the free encyclopedia.", readFull: "Read the full article", show: "Show", teamFilter: "Filter by team", langLabel: "Language",
       loadingRound: (n, t) => `Loading round ${n} of ${t}…`,
-      played: (p, t) => `${p} of ${t} matches played`,
+      played: (p, t) => `${p} of ${t} matches played`, updated: (tm) => `Updated ${tm}`,
       round: (r) => `Round ${r}`, playoff: (r) => `Playoff round ${r}`, nextUp: "Next up",
       fullTime: "Full time", halfTime: "Half time", live: "Live", kickOff: "Kick-off", postponed: "Postponed", tbc: "TBC",
       none: "No matches for this filter.", loadFail: "Couldn't load fixtures",
@@ -297,7 +297,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
       historyFail: "לא ניתן לטעון את ההיסטוריה מוויקיפדיה. בדקו את החיבור ונסו שוב.",
       historySource: "מתוך ויקיפדיה, האנציקלופדיה החופשית.", readFull: "לערך המלא", show: "הצג", teamFilter: "סינון לפי קבוצה", langLabel: "שפה",
       loadingRound: (n, t) => `טוען מחזור ${n} מתוך ${t}…`,
-      played: (p, t) => `שוחקו ${p} מתוך ${t} משחקים`,
+      played: (p, t) => `שוחקו ${p} מתוך ${t} משחקים`, updated: (tm) => `עודכן ב־${tm}`,
       round: (r) => `מחזור ${r}`, playoff: (r) => `פלייאוף · מחזור ${r}`, nextUp: "המחזור הבא",
       fullTime: "סיום", halfTime: "מחצית", live: "בשידור חי", kickOff: "שריקת פתיחה", postponed: "נדחה", tbc: "טרם נקבע",
       none: "אין משחקים שמתאימים לסינון.", loadFail: "לא ניתן לטעון את המשחקים",
@@ -378,7 +378,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   };
 
   const $ = (id) => document.getElementById(id);
-  const state = { title: new Map(), points: new Map(), matches: [], filter: "all", team: "", lang: "en", loaded: false, error: null };
+  const state = { updated: null, title: new Map(), points: new Map(), matches: [], filter: "all", team: "", lang: "en", loaded: false, error: null };
 
   try {
     const s = JSON.parse(localStorage.getItem("ligat-haal-prefs") || "{}");
@@ -405,26 +405,44 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  // Direct-from-API fallback, used only when fixtures.json isn't there (e.g. opening the file locally).
+  // A rate-limited reply has no CORS header, so the browser reports it as a network error; retry those too.
   async function fetchRound(r, tries = 3) {
-    const res = await fetch(`${API}?id=${LEAGUE}&r=${r}&s=${SEASON}`);
-    if (res.status === 429 && tries > 0) { await sleep(2500); return fetchRound(r, tries - 1); }
+    let res;
+    try { res = await fetch(`${API}?id=${LEAGUE}&r=${r}&s=${SEASON}`); }
+    catch (err) { if (tries > 0) { await sleep(8000); return fetchRound(r, tries - 1); } throw err; }
+    if (res.status === 429 && tries > 0) { await sleep(8000); return fetchRound(r, tries - 1); }
     if (!res.ok) throw new Error("HTTP " + res.status);
     const d = await res.json();
     return d.events || [];
   }
 
+  // Preferred source: one file the GitHub Actions job rebuilds every 15 minutes.
+  async function loadPrepared() {
+    try {
+      const res = await fetch("fixtures.json", { cache: "no-cache" });
+      if (!res.ok) return null;
+      const d = await res.json();
+      if (!Array.isArray(d.events) || !d.events.length) return null;
+      state.updated = d.updated ? new Date(d.updated) : null;
+      Object.entries(d.teams || {}).forEach(([id, info]) => teamInfo.set(id, info));
+      return d.events;
+    } catch { return null; }
+  }
+
   async function loadAll() {
+    const prepared = await loadPrepared();
+    if (prepared) return prepared;
     try {
       const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
       if (c && Date.now() - c.t < CACHE_MS) return c.events;
     } catch {}
     const events = [];
-    // Regular season: 26 rounds, a few at a time to stay under the free API's rate limit.
+    // Regular season: 26 rounds, one at a time to stay under the free API's rate limit.
     const rounds = Array.from({ length: 26 }, (_, i) => i + 1);
-    for (let i = 0; i < rounds.length; i += 4) {
-      const batch = await Promise.all(rounds.slice(i, i + 4).map((r) => fetchRound(r)));
-      batch.forEach((e) => events.push(...e));
-      $("played").textContent = t().loadingRound(Math.min(i + 4, 26), 26);
+    for (const r of rounds) {
+      events.push(...await fetchRound(r));
+      $("played").textContent = t().loadingRound(r, 26);
     }
     // Playoff rounds (27+) only exist once scheduled; stop at the first empty one.
     for (let r = 27; r <= 40; r++) {
@@ -570,7 +588,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     if (!state.loaded) { $("played").textContent = s.loading; return; }
     const total = state.matches.length;
     const played = state.matches.filter((m) => m.done).length;
-    $("played").textContent = s.played(played, total);
+    $("played").textContent = s.played(played, total) + (state.updated ? " · " + s.updated(fmt.time.format(state.updated)) : "");
     $("barFill").style.width = total ? (played / total * 100) + "%" : "0";
     const teams = [...new Set(state.matches.flatMap((m) => [m.home, m.away]))]
       .sort((a, b) => teamName(a).localeCompare(teamName(b), state.lang));
