@@ -4,7 +4,9 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "*/15 * * * *" # refresh scores every 15 minutes
+    # Hourly: unfinished rounds every run, everything once the last full refresh is 6+ hours old
+    # (scripts/fetch-data.mjs decides). GitHub may start scheduled runs late or skip some.
+    - cron: "7 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -20,7 +22,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -31,13 +33,19 @@ jobs:
         with:
           node-version: 20
 
+      - id: pages
+        uses: actions/configure-pages@v5
+
       - name: Build site
+        env:
+          # The live site: the script reuses its finished rounds and club details.
+          PREVIOUS_URL: ${{ steps.pages.outputs.base_url }}
         run: |
           mkdir _site
-          cp index.html _site/
-          node scripts/fetch-data.mjs _site/fixtures.json
-
-      - uses: actions/configure-pages@v5
+          cp index.html icon.png _site/
+          node scripts/fetch-data.mjs _site/data
+          # Old name of the Israeli data file, for browsers still holding the previous page.
+          cp _site/data/il.json _site/fixtures.json
 
       - uses: actions/upload-pages-artifact@v3
         with:

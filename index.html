@@ -1,7 +1,11 @@
+<!doctype html>
+<html lang="he" dir="rtl">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>David's Ligat Ha'Al</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2232%22%20fill%3D%22%23111%22/%3E%3Cg%20transform%3D%22translate%286%205%29%20scale%28.82%29%22%20fill%3D%22%23f5c400%22%20stroke%3D%22%23f5c400%22%3E%3Cpath%20d%3D%22M18%208h28v14c0%209-6%2016-14%2016S18%2031%2018%2022z%22/%3E%3Cpath%20d%3D%22M18%2012h-7v4c0%206%204%2010%209%2010M46%2012h7v4c0%206-4%2010-9%2010%22%20fill%3D%22none%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22/%3E%3Crect%20x%3D%2229%22%20y%3D%2237%22%20width%3D%226%22%20height%3D%228%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2245%22%20width%3D%2222%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2251%22%20width%3D%2230%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3C/g%3E%3C/svg%3E">
+<title>ליגת העל</title>
+<!-- Icon: half Messi (CC BY-SA 4.0 photo by Bryan Berlin), half Pelé (public domain, El Gráfico 1970). Credited in the footer (PHOTOS). -->
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
@@ -18,6 +22,10 @@
   --live: #d22f2f;
   --beitar-yellow: #f5c400;
   --beitar-black: #111111;
+  --real-navy: #0d1f5c;
+  --real-gold: #f0c040;
+  --real-white: #ffffff;
+  --real-outline: #c9a227;
   --heart-outline: #111111;
   --display: "Barlow Condensed", "IBM Plex Sans Hebrew", "Arial Narrow", system-ui, sans-serif;
   --body: "IBM Plex Sans", "IBM Plex Sans Hebrew", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -41,15 +49,22 @@
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
-/* Beitar crest as a faded, fixed watermark behind the whole app. */
+/* A faded, fixed picture behind the app: Messi for Israel, the Real Madrid crest for Spain. */
 body::before {
   content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background: var(--crest, none) center 55% / min(78vw, 620px) no-repeat;
+  background: var(--crest, none) center 55% / var(--crest-size, min(78vw, 620px)) no-repeat;
   opacity: .08;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body::before { opacity: .1; } }
 :root[data-theme="dark"] body::before { opacity: .1; }
 .wrap { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; }
+
+/* Israel / Spain switch: the first thing on the page, full width. */
+.league-switch { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); margin-bottom: 16px; }
+.league-switch button { font: 600 16px var(--body); color: var(--muted); background: none; border: 0; padding: 10px 12px; cursor: pointer; display: grid; justify-items: center; gap: 1px; }
+.league-switch button small { font-weight: 500; font-size: 12px; opacity: .85; }
+.league-switch button + button { border-inline-start: 1px solid var(--line); }
+.league-switch button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 
 header.top { display: grid; gap: 6px; padding-bottom: 20px; }
 .top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -102,20 +117,23 @@ button.team:hover { background: var(--accent-soft); }
 .team span { min-width: 0; overflow-wrap: anywhere; }
 .tname { display: grid; gap: 1px; min-width: 0; }
 .pts { font-size: 12px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
-/* Champions banner: always Beitar black and yellow, in both themes. */
+/* Champions banner in the favourite club's colours, the same in both themes:
+   Beitar black and yellow for Israel, Real Madrid navy and gold for Spain. */
 .banner {
+  --b-dark: var(--beitar-black); --b-acc: var(--beitar-yellow);
   position: relative; overflow: hidden; border-radius: 14px; margin-bottom: 22px;
   background:
-    repeating-linear-gradient(135deg, transparent 0 22px, rgba(245, 196, 0, .09) 22px 44px),
-    var(--beitar-black);
-  color: var(--beitar-yellow);
+    repeating-linear-gradient(135deg, transparent 0 22px, color-mix(in srgb, var(--b-acc) 9%, transparent) 22px 44px),
+    var(--b-dark);
+  color: var(--b-acc);
   display: flex; align-items: center; gap: 18px; padding: 22px 24px;
-  border: 2px solid var(--beitar-yellow);
+  border: 2px solid var(--b-acc);
 }
-.banner .cup { width: 84px; height: 84px; flex: none; position: relative; z-index: 1; filter: drop-shadow(0 4px 14px rgba(245, 196, 0, .45)); }
-.banner .cup * { fill: var(--beitar-yellow); stroke: var(--beitar-yellow); }
-.banner .cup .shine { fill: var(--beitar-black); stroke: none; }
-.banner .words { position: relative; z-index: 1; display: grid; gap: 4px; min-width: 0; background: var(--beitar-black); border-radius: 10px; box-shadow: 0 0 18px 12px var(--beitar-black); }
+:root[data-league="es"] .banner { --b-dark: var(--real-navy); --b-acc: var(--real-gold); }
+.banner .cup { width: 84px; height: 84px; flex: none; position: relative; z-index: 1; filter: drop-shadow(0 4px 14px color-mix(in srgb, var(--b-acc) 45%, transparent)); }
+.banner .cup * { fill: var(--b-acc); stroke: var(--b-acc); }
+.banner .cup .shine { fill: var(--b-dark); stroke: none; }
+.banner .words { position: relative; z-index: 1; display: grid; gap: 4px; min-width: 0; background: var(--b-dark); border-radius: 10px; box-shadow: 0 0 18px 12px var(--b-dark); }
 .banner .kicker { font: 600 13px var(--body); letter-spacing: .14em; text-transform: uppercase; color: #fff; opacity: .85; }
 .banner .big { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 6.5vw, 46px); line-height: 1; text-transform: uppercase; text-wrap: balance; }
 .banner .club { font: 500 15px var(--body); color: #fff; }
@@ -123,9 +141,24 @@ button.team:hover { background: var(--accent-soft); }
 .confetti i { position: absolute; width: 6px; height: 11px; border-radius: 1px; opacity: .9; }
 :root[lang="he"] .banner .kicker, :root[lang="he"] .banner .big { letter-spacing: 0; }
 @media (max-width: 520px) { .banner { padding: 18px 16px; gap: 12px; } .banner .cup { width: 60px; height: 60px; } }
+/* Israel's banner: Messi's goal celebration, arms wide (2018 World Cup v Nigeria),
+   framed on his face and outstretched arms. */
+.photo-banner {
+  height: 230px; border-radius: 14px; margin-bottom: 22px; border: 1px solid var(--line);
+  background: var(--surface) url("https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Messi_vs_Nigeria1.jpg/1280px-Messi_vs_Nigeria1.jpg") 44% 34% / cover no-repeat;
+}
+:root[data-league="il"] .banner, :root:not([data-league="il"]) .photo-banner { display: none; }
+@media (max-width: 520px) { .photo-banner { height: 200px; } }
 .mark { margin-inline-start: .3em; font-size: .95em; }
+/* "האלופה" tag next to Beitar: Beitar yellow and black in both themes. */
+.champ {
+  display: inline-block; margin-inline-start: .4em; padding: 1px 7px; border-radius: 999px;
+  background: var(--beitar-yellow); color: var(--beitar-black);
+  font: 700 11px var(--body); letter-spacing: .02em; vertical-align: .12em; white-space: nowrap;
+}
 .heart { width: 1em; height: 1em; margin-inline-start: .3em; vertical-align: -.14em; }
 .heart path { fill: url(#beitarSplit); stroke: var(--heart-outline); stroke-width: 1.4; stroke-linejoin: round; }
+.heart.rm path { fill: var(--real-white); stroke: var(--real-outline); }
 .stop-y { stop-color: var(--beitar-yellow); }
 .stop-b { stop-color: var(--beitar-black); }
 .odds { font-weight: 500; color: var(--muted); cursor: help; }
@@ -155,6 +188,7 @@ button.team:hover { background: var(--accent-soft); }
 .state button { margin-top: 12px; }
 footer { margin-top: 40px; color: var(--muted); font-size: 12px; text-align: center; }
 footer a { color: var(--muted); }
+.credit { display: block; margin-top: 6px; }
 
 /* Team panel: a side sheet with this season's numbers and the club's history. */
 dialog.club {
@@ -204,25 +238,32 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   </defs>
 </svg>
 <div class="wrap">
+  <div class="league-switch" role="group" id="leagueGroup">
+    <button type="button" id="lg-il" data-league="il" aria-pressed="true"><span data-t="lgIl">Israel</span><small data-t="lgIlSub">Ligat Ha'Al</small></button>
+    <button type="button" id="lg-es" data-league="es" aria-pressed="false"><span data-t="lgEs">Spain</span><small data-t="lgEsSub">La Liga</small></button>
+  </div>
+
+  <section class="photo-banner" role="img" id="photoBanner" aria-label="Lionel Messi"></section>
+
   <section class="banner" aria-label="Beitar Jerusalem champions">
     <div class="confetti" id="confetti" aria-hidden="true"></div>
     <svg class="cup" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M18 8h28v14c0 9-6 16-14 16S18 31 18 22z"/><path d="M18 12h-7v4c0 6 4 10 9 10M46 12h7v4c0 6-4 10-9 10" fill="none" stroke-width="3.5" stroke-linecap="round"/><rect x="29" y="37" width="6" height="8"/><rect x="21" y="45" width="22" height="6" rx="1.5"/><rect x="17" y="51" width="30" height="6" rx="1.5"/><path class="shine" d="M32 13l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z"/></svg>
     <div class="words">
-      <span class="kicker" data-t="bannerKicker">Ligat Ha'Al 2026/27</span>
+      <span class="kicker" data-lt="bannerKicker">Ligat Ha'Al 2026/27</span>
       <span class="big" data-t="bannerBig">Champions!</span>
-      <span class="club" data-t="bannerClub">Beitar Jerusalem</span>
+      <span class="club" data-lt="bannerClub">Beitar Jerusalem</span>
     </div>
   </section>
 
   <header class="top">
     <div class="top-row">
-      <div class="eyebrow" data-t="eyebrow">Israeli Premier League · 2026/27</div>
+      <div class="eyebrow" data-lt="eyebrow">Israeli Premier League · 2026/27</div>
       <div class="lang" role="group" aria-label="Language">
         <button id="lang-en" data-lang="en" lang="en" aria-pressed="true">English</button>
         <button id="lang-he" data-lang="he" lang="he" aria-pressed="false">עברית</button>
       </div>
     </div>
-    <h1><span id="title">David's Ligat Ha'Al</span><span class="alt" id="titleAlt" lang="he" dir="rtl">ליגת העל של דוד</span></h1>
+    <h1><span id="title">Ligat Ha'Al</span><span class="alt" id="titleAlt" lang="he" dir="rtl">ליגת העל</span></h1>
     <div class="progress">
       <span id="played">Loading fixtures…</span>
       <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
@@ -244,15 +285,33 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
 
   <dialog class="club" id="club" aria-labelledby="clubName"><div class="club-inner" id="clubBody"></div></dialog>
 
-  <footer><span data-t="source">Data from</span> <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a>. <span data-t="footer">Regular season, 14 clubs, 26 rounds. Playoff rounds appear once they're scheduled.</span><br><span data-t="oddsNote">Title chances are estimates from 10,000 simulated seasons based on results so far. They are not bookmaker odds.</span></footer>
+  <footer><span data-t="source">Data from</span> <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a>. <span data-lt="footer">Regular season, 14 clubs, 26 rounds. Playoff rounds appear once they're scheduled.</span><br><span data-t="oddsNote">Title chances are estimates from 10,000 simulated seasons based on results so far. They are not bookmaker odds.</span><span class="credit" id="credit"></span></footer>
 </div>
 
 <script>
 (() => {
-  const LEAGUE = 4644;
   const SEASON = "2026-2027";
+  // Everything that differs between the two leagues. playoffTop: how many clubs go
+  // into the championship playoff after the regular season (0 = no playoff).
+  const LEAGUES = {
+    il: { id: 4644, rounds: 26, playoffTop: 6, fav: "Beitar Jerusalem",
+          bg: { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Leo_Messi_Argentina_v_Egypt_7_July_2026-1.jpg/960px-Leo_Messi_Argentina_v_Egypt_7_July_2026-1.jpg",
+                size: "auto min(88vh, 900px)" } }, // background photo instead of the favourite's crest
+    es: { id: 4335, rounds: 38, playoffTop: 0, fav: "Real Madrid" },
+  };
+  // Photos used on the site, all from Wikimedia Commons. The two Messi photos are CC BY-SA,
+  // so the footer credit must stay; Pelé's is public domain.
+  //   portrait:  Israel background + left half of the site icon
+  //   celebrate: Israel banner
+  //   pele:      right half of the site icon
+  const PHOTOS = {
+    portrait: { page: "https://commons.wikimedia.org/wiki/File:Leo_Messi_Argentina_v_Egypt_7_July_2026-1.jpg",
+                author: "Bryan Berlin", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/" },
+    celebrate: { page: "https://commons.wikimedia.org/wiki/File:Messi_vs_Nigeria1.jpg",
+                 author: "Kirill Venediktov / soccer.ru", license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/" },
+    pele: { page: "https://commons.wikimedia.org/wiki/File:Pele_con_brasil_(cropped).jpg" },
+  };
   const API = "https://www.thesportsdb.com/api/v1/json/123/eventsround.php";
-  const CACHE_KEY = "ligat-haal-" + SEASON;
   const CACHE_MS = 10 * 60 * 1000;
   const TZ = "Asia/Jerusalem";
   const LIVE = new Set(["1H", "HT", "2H", "ET", "BT", "P", "LIVE"]);
@@ -260,11 +319,11 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
 
   const STR = {
     en: {
-      bannerKicker: "Ligat Ha'Al 2026/27", bannerBig: "Champions!", bannerClub: "Beitar Jerusalem", bannerLabel: "Beitar Jerusalem champions",
-      eyebrow: "Israeli Premier League · 2026/27", title: "David's Ligat Ha'Al", titleAlt: "ליגת העל של דוד", titleAltLang: "he",
+      bannerBig: "Champions!", titleAltLang: "he",
+      photoLabel: "Lionel Messi celebrating a goal", champ: "The Champion", champCaptain: "The Champ", credit: (c) => `Photos via Wikimedia Commons: ${c.portrait} by ${c.portraitBy}, ${c.portraitLic}; ${c.celebrate} by ${c.celebrateBy}, ${c.celebrateLic}; ${c.pele}, El Gráfico (1970), public domain.`,
+      creditPortrait: "Lionel Messi", creditCelebrate: "Messi celebrating", creditPele: "Pelé", lgIl: "Israel", lgIlSub: "Ligat Ha'Al", lgEs: "Spain", lgEsSub: "La Liga", leagueLabel: "League",
       tz: "Times in Israel time", all: "All", upcoming: "Upcoming", results: "Results", allTeams: "All teams",
       jump: "Jump to next round", loading: "Loading fixtures…", source: "Data from",
-      footer: "Regular season, 14 clubs, 26 rounds. Playoff rounds appear once they're scheduled.",
       oddsNote: "Title chances are estimates from 10,000 simulated seasons based on results so far. They are not bookmaker odds.",
       titleChance: (p) => `${p} title chance`, titleHelp: "Estimated chance of winning the league, from 10,000 simulated seasons",
       points: (n) => `${n} ${n === 1 ? "pt" : "pts"}`, captain: (n) => `Captain: ${n}`,
@@ -277,16 +336,16 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
       loadingRound: (n, t) => `Loading round ${n} of ${t}…`,
       played: (p, t) => `${p} of ${t} matches played`, updated: (tm) => `Updated ${tm}`,
       round: (r) => `Round ${r}`, playoff: (r) => `Playoff round ${r}`, nextUp: "Next up",
-      fullTime: "Full time", halfTime: "Half time", live: "Live", kickOff: "Kick-off", postponed: "Postponed", tbc: "TBC",
+      fullTime: "Full time", halfTime: "Half time", live: "Live", kickOff: "Kick-off", postponed: "Postponed", abandoned: "Abandoned", tbc: "TBC",
       none: "No matches for this filter.", loadFail: "Couldn't load fixtures",
       error: (m) => `The match data service didn't respond (${m}). Check your connection and try again.`, retry: "Try again",
     },
     he: {
-      bannerKicker: "ליגת העל 2026/27", bannerBig: "אלופים!", bannerClub: 'בית"ר ירושלים', bannerLabel: 'בית"ר ירושלים אלופת המדינה',
-      eyebrow: "הליגה הישראלית לכדורגל · עונת 2026/27", title: "ליגת העל של דוד", titleAlt: "David's Ligat Ha'Al", titleAltLang: "en",
+      bannerBig: "אלופים!", titleAltLang: "en",
+      photoLabel: "ליונל מסי חוגג גול", champ: "האלופה", champCaptain: "האלוף", credit: (c) => `התמונות מוויקימדיה קומונס: ${c.portrait}, צילום ${c.portraitBy}, ברישיון ${c.portraitLic}; ${c.celebrate}, צילום ${c.celebrateBy}, ברישיון ${c.celebrateLic}; ${c.pele}, אל גראפיקו (1970), ברשות הציבור.`,
+      creditPortrait: "ליונל מסי", creditCelebrate: "מסי חוגג", creditPele: "פלה", lgIl: "ישראל", lgIlSub: "ליגת העל", lgEs: "ספרד", lgEsSub: "לה ליגה", leagueLabel: "ליגה",
       tz: "השעות לפי שעון ישראל", all: "הכל", upcoming: "משחקים הבאים", results: "תוצאות", allTeams: "כל הקבוצות",
       jump: "למחזור הבא", loading: "טוען משחקים…", source: "הנתונים מ־",
-      footer: "עונה סדירה, 14 קבוצות, 26 מחזורים. מחזורי הפלייאוף יופיעו לאחר שייקבעו.",
       oddsNote: "סיכויי האליפות הם הערכה המבוססת על 10,000 הדמיות של המשך העונה לפי התוצאות עד כה. אלה אינם יחסי הימורים.",
       titleChance: (p) => `${p} לאליפות`, titleHelp: "הסיכוי המשוער לזכות באליפות, לפי 10,000 הדמיות של המשך העונה",
       points: (n) => n === 1 ? "נקודה אחת" : `${n} נק׳`, captain: (n) => `קפטן: ${n}`,
@@ -299,9 +358,29 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
       loadingRound: (n, t) => `טוען מחזור ${n} מתוך ${t}…`,
       played: (p, t) => `שוחקו ${p} מתוך ${t} משחקים`, updated: (tm) => `עודכן ב־${tm}`,
       round: (r) => `מחזור ${r}`, playoff: (r) => `פלייאוף · מחזור ${r}`, nextUp: "המחזור הבא",
-      fullTime: "סיום", halfTime: "מחצית", live: "בשידור חי", kickOff: "שריקת פתיחה", postponed: "נדחה", tbc: "טרם נקבע",
+      fullTime: "סיום", halfTime: "מחצית", live: "בשידור חי", kickOff: "שריקת פתיחה", postponed: "נדחה", abandoned: "הופסק", tbc: "טרם נקבע",
       none: "אין משחקים שמתאימים לסינון.", loadFail: "לא ניתן לטעון את המשחקים",
       error: (m) => `שירות הנתונים לא הגיב (${m}). בדקו את החיבור ונסו שוב.`, retry: "נסו שוב",
+    },
+  };
+
+  // Strings that depend on the league on screen: LSTR[lang][league].
+  const LSTR = {
+    en: {
+      il: { eyebrow: "Israeli Premier League · 2026/27", title: "Ligat Ha'Al", titleAlt: "ליגת העל",
+            bannerKicker: "Ligat Ha'Al 2026/27", bannerClub: "Beitar Jerusalem", bannerLabel: "Beitar Jerusalem champions",
+            footer: "Regular season, 14 clubs, 26 rounds. Playoff rounds appear once they're scheduled." },
+      es: { eyebrow: "Spanish La Liga · 2026/27", title: "David's La Liga", titleAlt: "לה ליגה של דוד",
+            bannerKicker: "La Liga 2026/27", bannerClub: "Real Madrid", bannerLabel: "Real Madrid champions",
+            footer: "20 clubs, 38 rounds, no playoff." },
+    },
+    he: {
+      il: { eyebrow: "הליגה הישראלית לכדורגל · עונת 2026/27", title: "ליגת העל", titleAlt: "Ligat Ha'Al",
+            bannerKicker: "ליגת העל 2026/27", bannerClub: 'בית"ר ירושלים', bannerLabel: 'בית"ר ירושלים אלופת המדינה',
+            footer: "עונה סדירה, 14 קבוצות, 26 מחזורים. מחזורי הפלייאוף יופיעו לאחר שייקבעו." },
+      es: { eyebrow: "הליגה הספרדית · עונת 2026/27", title: "לה ליגה של דוד", titleAlt: "David's La Liga",
+            bannerKicker: "לה ליגה 2026/27", bannerClub: "ריאל מדריד", bannerLabel: "ריאל מדריד אלופת ספרד",
+            footer: "20 קבוצות, 38 מחזורים, ללא פלייאוף." },
     },
   };
 
@@ -326,6 +405,27 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     "Maccabi Bnei Reineh": "מכבי בני ריינה",
     "Hapoel Hadera": "הפועל חדרה",
     "Ashdod": "מ.ס. אשדוד",
+    // La Liga
+    "Athletic Bilbao": "אתלטיק בילבאו",
+    "Atlético Madrid": "אתלטיקו מדריד",
+    "Barcelona": "ברצלונה",
+    "Celta Vigo": "סלטה ויגו",
+    "Deportivo Alavés": "אלאבס",
+    "Deportivo de A Coruña": "דפורטיבו לה קורוניה",
+    "Elche": "אלצ'ה",
+    "Espanyol": "אספניול",
+    "Getafe": "חטאפה",
+    "Levante": "לבאנטה",
+    "Málaga": "מאלגה",
+    "Osasuna": "אוססונה",
+    "Racing de Santander": "ראסינג סנטנדר",
+    "Rayo Vallecano": "ראיו ואייקאנו",
+    "Real Betis": "ריאל בטיס",
+    "Real Madrid": "ריאל מדריד",
+    "Real Sociedad": "ריאל סוסיאדד",
+    "Sevilla": "סביליה",
+    "Valencia": "ולנסיה",
+    "Villarreal": "ויאריאל",
   };
   // Club captains for 2026/27, from the clubs' Wikipedia squad lists (Aug 2026).
   // Clubs missing here show no captain line until a name is added.
@@ -339,6 +439,26 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     "Maccabi Haifa": ["Kenji Gorré", "קנג'י גורה"],
     "Maccabi Netanya": ["Karem Jaber", "כארם ג'אבר"],
     "Maccabi Tel Aviv": ["Dor Peretz", "דור פרץ"],
+    // La Liga (Getafe's squad list names no captain)
+    "Athletic Bilbao": ["Iñaki Williams", "איניאקי ויליאמס"],
+    "Atlético Madrid": ["Koke", "קוקה"],
+    "Barcelona": ["Raphinha", "ראפיניה"],
+    "Celta Vigo": ["Iago Aspas", "יאגו אספאס"],
+    "Deportivo Alavés": ["Antonio Sivera", "אנטוניו סיברה"],
+    "Deportivo de A Coruña": ["Diego Villares", "דייגו ויאארס"],
+    "Elche": ["Pedro Bigas", "פדרו ביגאס"],
+    "Espanyol": ["Leandro Cabrera", "לאנדרו קבררה"],
+    "Levante": ["Roger Brugué", "רוחר ברוגה"],
+    "Málaga": ["Ramón", "רמון"],
+    "Osasuna": ["Kike Barja", "קיקה בארחה"],
+    "Racing de Santander": ["Íñigo Sainz-Maza", "איניגו סאינס-מאסה"],
+    "Rayo Vallecano": ["Óscar Valentín", "אוסקר ולנטין"],
+    "Real Betis": ["Isco", "איסקו"],
+    "Real Madrid": ["Federico Valverde", "פדריקו ואלוורדה"],
+    "Real Sociedad": ["Mikel Oyarzabal", "מיקל אויארסבאל"],
+    "Sevilla": ["Gabriel Suazo", "גבריאל סואסו"],
+    "Valencia": ["José Gayà", "חוסה גאיה"],
+    "Villarreal": ["Gerard Moreno", "ז'רארד מורנו"],
   };
   // Wikipedia article for each club: [English, Hebrew].
   const WIKI = {
@@ -356,13 +476,47 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     "Maccabi Netanya": ["Maccabi Netanya F.C.", "מכבי נתניה"],
     "Maccabi Petah Tikva": ["Maccabi Petah Tikva F.C.", "מכבי פתח תקווה (כדורגל)"],
     "Maccabi Tel Aviv": ["Maccabi Tel Aviv F.C.", "מכבי תל אביב (כדורגל)"],
+    // La Liga
+    "Athletic Bilbao": ["Athletic Bilbao", "אתלטיק בילבאו"],
+    "Atlético Madrid": ["Atlético Madrid", "אתלטיקו מדריד"],
+    "Barcelona": ["FC Barcelona", "ברצלונה (כדורגל)"],
+    "Celta Vigo": ["RC Celta de Vigo", "סלטה ויגו"],
+    "Deportivo Alavés": ["Deportivo Alavés", "דפורטיבו אלאבס"],
+    "Deportivo de A Coruña": ["Deportivo de A Coruña", "דפורטיבו אה קורוניה"],
+    "Elche": ["Elche CF", "אלצ'ה (כדורגל)"],
+    "Espanyol": ["RCD Espanyol", "אספניול"],
+    "Getafe": ["Getafe CF", "חטאפה (כדורגל)"],
+    "Levante": ["Levante UD", "לבאנטה"],
+    "Málaga": ["Málaga CF", "מאלגה (כדורגל)"],
+    "Osasuna": ["CA Osasuna", "אוססונה"],
+    "Racing de Santander": ["Racing de Santander", "ראסינג סנטנדר"],
+    "Rayo Vallecano": ["Rayo Vallecano", "ראיו ואייקאנו"],
+    "Real Betis": ["Real Betis", "ריאל בטיס"],
+    "Real Madrid": ["Real Madrid CF", "ריאל מדריד"],
+    "Real Sociedad": ["Real Sociedad", "ריאל סוסיאדד"],
+    "Sevilla": ["Sevilla FC", "סביליה (כדורגל)"],
+    "Valencia": ["Valencia CF", "ולנסיה (כדורגל)"],
+    "Villarreal": ["Villarreal CF", "ויאריאל (כדורגל)"],
   };
 
   // Symbols shown next to a club's name.
-  const HEART = `<svg class="heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.4-4.5-9.4-9C1.1 8.1 3.2 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3.1 1.6-1.9 3.1-3.1 5.2-3.1 3.6 0 5.7 3.6 4.2 7-2 4.5-9.4 9-9.4 9z"></path></svg>`;
+  const heart = (cls) => `<svg class="heart ${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.4-4.5-9.4-9C1.1 8.1 3.2 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3.1 1.6-1.9 3.1-3.1 5.2-3.1 3.6 0 5.7 3.6 4.2 7-2 4.5-9.4 9-9.4 9z"></path></svg>`;
+  const PUKE = `<span class="mark" aria-hidden="true">🤮</span>`;
   const TEAM_MARKS = {
-    "Beitar Jerusalem": HEART,
-    "Maccabi Tel Aviv": `<span class="mark" aria-hidden="true">🤮</span>`,
+    "Beitar Jerusalem": heart("beitar"), // yellow and black
+    "Real Madrid": heart("rm"),          // white with a gold outline
+    "Maccabi Tel Aviv": PUKE,
+    "Bnei Sakhnin": PUKE,
+  };
+  // Every Hapoel club gets 🤮 too, including any promoted in future seasons.
+  const markFor = (name) => (TEAM_MARKS[name] || (/^Hapoel\b/.test(name) ? PUKE : ""))
+    + (name === "Beitar Jerusalem" ? `<span class="champ">${esc(t().champ)}</span>` : "");
+  // "Captain: …" line as HTML; Beitar's captain also gets a "האלוף" tag.
+  const captainHtml = (name) => {
+    const cap = CAPTAINS[name];
+    if (!cap) return "";
+    return esc(t().captain(cap[state.lang === "he" ? 1 : 0]))
+      + (name === "Beitar Jerusalem" ? `<span class="champ">${esc(t().champCaptain)}</span>` : "");
   };
 
   const VENUE_HE = {
@@ -375,18 +529,48 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     "Sammy Ofer Stadium": "אצטדיון סמי עופר",
     "Teddy Stadium": "אצטדיון טדי",
     "Turner Stadium": "אצטדיון טרנר",
+    // La Liga
+    "Estadio Santiago Bernabéu": "סנטיאגו ברנבאו",
+    "Spotify Camp Nou": "קאמפ נואו",
+    "Riyadh Air Metropolitano": "מטרופוליטנו",
+    "Estadio de Mestalla": "מסטאיה",
+    "Estadio Ramón Sánchez Pizjuán": "רמון סאנצ'ס פיסחואן",
+    "Estadio Abanca-Balaídos": "באלאידוס",
+    "Estadio Abanca-Riazor": "ריאסור",
+    "Estadio de Mendizorroza": "מנדיסורוסה",
+    "RCDE Stadium": "אצטדיון RCDE",
+    "Campos de Sport de El Sardinero": "אל סרדינרו",
+    "Estadio Ciudad de Valencia": "סיודד דה ולנסיה",
+    "Estadio Coliseum": "קוליסאום",
+    "Estadio El Sadar": "אל סאדאר",
+    "Estadio La Rosaleda": "לה רוסאלדה",
+    "Estadio Martínez Valero": "מרטינס ואלרו",
+    "Estadio de La Cartuja": "לה קרטוחה",
+    "Estadio de Vallecas": "ואייקאס",
+    "Estadio de la Cerámica": "לה סרמיקה",
+    "Ontime Butarque": "בוטארקה",
+    "Reale Arena": "ריאלה ארנה",
+    "San Mamés Barria": "סן מאמס",
   };
 
   const $ = (id) => document.getElementById(id);
-  const state = { updated: null, title: new Map(), points: new Map(), matches: [], filter: "all", team: "", lang: "en", loaded: false, error: null };
+  // Each league keeps its own loaded data; switching back and forth doesn't reload.
+  const blank = () => ({ matches: [], points: new Map(), title: new Map(), updated: null, crest: null, loaded: false, loading: false, error: null });
+  const state = { league: "il", data: { il: blank(), es: blank() }, filter: "all", team: "", lang: "he" };
 
   try {
     const s = JSON.parse(localStorage.getItem("ligat-haal-prefs") || "{}");
     state.filter = s.filter || "all"; state.team = s.team || "";
-    state.lang = s.lang || ((navigator.language || "").toLowerCase().startsWith("he") ? "he" : "en");
+    state.lang = s.lang || "he"; // Hebrew unless the visitor picked English
+    if (LEAGUES[s.league]) state.league = s.league;
   } catch {}
-  const savePrefs = () => { try { localStorage.setItem("ligat-haal-prefs", JSON.stringify({ filter: state.filter, team: state.team, lang: state.lang })); } catch {} };
+  // A link ending in #il or #es opens that league.
+  if (LEAGUES[location.hash.slice(1)]) state.league = location.hash.slice(1);
+  const savePrefs = () => { try { localStorage.setItem("ligat-haal-prefs", JSON.stringify({ filter: state.filter, team: state.team, lang: state.lang, league: state.league })); } catch {} };
 
+  const D = () => state.data[state.league];   // the league on screen: its data
+  const L = () => LEAGUES[state.league];      // ...its settings
+  const lt = () => LSTR[state.lang][state.league]; // ...its strings
   const t = () => STR[state.lang];
   const teamName = (n) => state.lang === "he" ? (TEAM_HE[n] || n) : n;
   const venueName = (v) => state.lang === "he" ? (VENUE_HE[v] || v) : v;
@@ -407,50 +591,51 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // Direct-from-API fallback, used only when fixtures.json isn't there (e.g. opening the file locally).
   // A rate-limited reply has no CORS header, so the browser reports it as a network error; retry those too.
-  async function fetchRound(r, tries = 3) {
+  async function fetchRound(lg, r, tries = 3) {
     let res;
-    try { res = await fetch(`${API}?id=${LEAGUE}&r=${r}&s=${SEASON}`); }
-    catch (err) { if (tries > 0) { await sleep(8000); return fetchRound(r, tries - 1); } throw err; }
-    if (res.status === 429 && tries > 0) { await sleep(8000); return fetchRound(r, tries - 1); }
+    try { res = await fetch(`${API}?id=${LEAGUES[lg].id}&r=${r}&s=${SEASON}`); }
+    catch (err) { if (tries > 0) { await sleep(8000); return fetchRound(lg, r, tries - 1); } throw err; }
+    if (res.status === 429 && tries > 0) { await sleep(8000); return fetchRound(lg, r, tries - 1); }
     if (!res.ok) throw new Error("HTTP " + res.status);
     const d = await res.json();
     return d.events || [];
   }
 
-  // Preferred source: one file the GitHub Actions job rebuilds every 15 minutes.
-  async function loadPrepared() {
+  // Preferred source: one file per league that the GitHub Actions job rebuilds every 15 minutes.
+  async function loadPrepared(lg) {
     try {
-      const res = await fetch("fixtures.json", { cache: "no-cache" });
+      const res = await fetch(`data/${lg}.json`, { cache: "no-cache" });
       if (!res.ok) return null;
       const d = await res.json();
       if (!Array.isArray(d.events) || !d.events.length) return null;
-      state.updated = d.updated ? new Date(d.updated) : null;
+      state.data[lg].updated = d.updated ? new Date(d.updated) : null;
       Object.entries(d.teams || {}).forEach(([id, info]) => teamInfo.set(id, info));
       return d.events;
     } catch { return null; }
   }
 
-  async function loadAll() {
-    const prepared = await loadPrepared();
+  async function loadAll(lg) {
+    const prepared = await loadPrepared(lg);
     if (prepared) return prepared;
+    const cacheKey = `ligat-haal-${lg}-${SEASON}`;
     try {
-      const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+      const c = JSON.parse(localStorage.getItem(cacheKey) || "null");
       if (c && Date.now() - c.t < CACHE_MS) return c.events;
     } catch {}
     const events = [];
-    // Regular season: 26 rounds, one at a time to stay under the free API's rate limit.
-    const rounds = Array.from({ length: 26 }, (_, i) => i + 1);
-    for (const r of rounds) {
-      events.push(...await fetchRound(r));
-      $("played").textContent = t().loadingRound(r, 26);
+    // Regular season one round at a time, to stay under the free API's rate limit.
+    const total = LEAGUES[lg].rounds;
+    for (let r = 1; r <= total; r++) {
+      events.push(...await fetchRound(lg, r));
+      if (lg === state.league) $("played").textContent = t().loadingRound(r, total);
     }
-    // Playoff rounds (27+) only exist once scheduled; stop at the first empty one.
-    for (let r = 27; r <= 40; r++) {
-      const e = await fetchRound(r);
+    // Playoff rounds only exist once scheduled; stop at the first empty one.
+    for (let r = total + 1; r <= total + 14 && LEAGUES[lg].playoffTop; r++) {
+      const e = await fetchRound(lg, r);
       if (!e.length) break;
       events.push(...e);
     }
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), events })); } catch {}
+    try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), events })); } catch {}
     return events;
   }
 
@@ -458,13 +643,14 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     const ts = e.strTimestamp ? new Date(e.strTimestamp + (/[Z+]/.test(e.strTimestamp) ? "" : "Z")) : new Date(e.dateEvent + "T12:00:00Z");
     const status = (e.strStatus || "NS").toUpperCase();
     const postponed = e.strPostponed === "yes" || status === "PST" || status === "CANC";
+    const abandoned = status === "ABD"; // stopped before full time; replayed or decided later
     const hs = e.intHomeScore, as = e.intAwayScore;
     return {
       id: e.idEvent, round: +e.intRound || 0, date: ts, homeId: e.idHomeTeam, awayId: e.idAwayTeam,
       home: e.strHomeTeam, away: e.strAwayTeam,
       homeBadge: e.strHomeTeamBadge, awayBadge: e.strAwayTeamBadge,
       hs: hs === null || hs === "" ? null : +hs, as: as === null || as === "" ? null : +as,
-      venue: e.strVenue, status, postponed,
+      venue: e.strVenue, status, postponed, abandoned,
       live: LIVE.has(status), done: DONE.has(status),
       noTime: !e.strTime || e.strTime === "00:00:00",
     };
@@ -473,10 +659,10 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   function teamCell(name, badge, side, cls) {
     const img = badge ? `<img src="${esc(badge)}/tiny" alt="" loading="lazy" onerror="this.onerror=null;this.src='${esc(badge)}'">` : "";
     const cap = CAPTAINS[name];
-    const capLine = cap ? `<small class="cap">${esc(t().captain(cap[state.lang === "he" ? 1 : 0]))}</small>` : "";
-    const odds = state.title.has(name) ? ` <span class="odds" title="${esc(t().titleHelp)}">· ${t().titleChance(pctHtml(state.title.get(name)))}</span>` : "";
-    const ptsLine = state.points.has(name) ? `<small class="pts">${t().points(state.points.get(name))}${odds}</small>` : "";
-    const label = `<span class="tname"><span>${esc(teamName(name))}${TEAM_MARKS[name] || ""}</span>${ptsLine}${capLine}</span>`;
+    const capLine = cap ? `<small class="cap">${captainHtml(name)}</small>` : "";
+    const odds = D().title.has(name) ? ` <span class="odds" title="${esc(t().titleHelp)}">· ${t().titleChance(pctHtml(D().title.get(name)))}</span>` : "";
+    const ptsLine = D().points.has(name) ? `<small class="pts">${t().points(D().points.get(name))}${odds}</small>` : "";
+    const label = `<span class="tname"><span>${esc(teamName(name))}${markFor(name)}</span>${ptsLine}${capLine}</span>`;
     return `<button type="button" class="team ${side} ${cls}" data-team="${esc(name)}" aria-label="${esc(t().clubOpen(teamName(name)))}">${side === "home" ? label + img : img + label}</button>`;
   }
 
@@ -484,6 +670,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     const s = t();
     let mid, hc = "", ac = "";
     if (m.postponed) mid = `<span class="tag">${s.postponed}</span>`;
+    else if (m.abandoned) mid = `<span class="tag">${s.abandoned}</span>`;
     else if (m.hs !== null && (m.done || m.live)) {
       // Separate spans so the home score always sits beside the home team, in either direction.
       mid = `<span class="score"><span>${m.hs}</span><span>–</span><span>${m.as}</span></span><span class="tag ${m.live ? "live" : ""}">${m.live ? (m.status === "HT" ? s.halfTime : s.live) : s.fullTime}</span>`;
@@ -497,9 +684,10 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   // Estimated title chances: Monte Carlo over the remaining fixtures.
   // Each team's attack/defence comes from goals so far, pulled toward the league
   // average (worth ~12 games) so early-season results don't dominate. Goals are
-  // Poisson with a home edge. If the playoff isn't scheduled yet, the top 6 after
-  // round 26 play each other home and away, carrying all their points over.
-  function titleChances(matches, sims = 10000) {
+  // Poisson with a home edge. In Israel, if the playoff isn't scheduled yet, the top 6
+  // after round 26 play each other home and away, carrying all their points over.
+  // La Liga has no playoff: the table after 38 rounds decides it.
+  function titleChances(matches, lg, sims = 10000) {
     const teams = [...new Set(matches.flatMap((m) => [m.home, m.away]))];
     const n = teams.length;
     if (!n) return new Map();
@@ -518,7 +706,8 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     const att = teams.map((_, i) => (gf[i] + K * avg) / (gp[i] + K) / avg);
     const def = teams.map((_, i) => (ga[i] + K * avg) / (gp[i] + K) / avg);
     const remaining = matches.filter((m) => !(m.done && m.hs !== null)).map((m) => [idx.get(m.home), idx.get(m.away)]);
-    const needPlayoff = !matches.some((m) => m.round > 26);
+    const { rounds, playoffTop } = LEAGUES[lg];
+    const needPlayoff = playoffTop > 0 && !matches.some((m) => m.round > rounds);
 
     let seed = 20262027; // fixed seed: same data gives the same numbers on every load
     const rng = () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
@@ -534,9 +723,9 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     for (let s = 0; s < sims; s++) {
       const P = pts.slice(), G = gd.slice();
       for (const [h, a] of remaining) play(h, a, P, G);
-      if (needPlayoff && n > 6) {
-        const top = rank(P, G).slice(0, 6);
-        for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) if (i !== j) play(top[i], top[j], P, G);
+      if (needPlayoff && n > playoffTop) {
+        const top = rank(P, G).slice(0, playoffTop);
+        for (let i = 0; i < playoffTop; i++) for (let j = 0; j < playoffTop; j++) if (i !== j) play(top[i], top[j], P, G);
       }
       wins[rank(P, G)[0]]++;
     }
@@ -559,8 +748,13 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   }
 
   const isResult = (m) => m.done || m.live;
+  // The round of the nearest upcoming match. Going by date, not by lowest round number,
+  // so one rescheduled game from an old round doesn't hijack "next round".
   function nextRound() {
-    const pending = state.matches.filter((m) => !m.done && !m.postponed);
+    const soon = Date.now() - 3 * 3600 * 1000; // a match that kicked off in the last 3 hours still counts
+    const pending = D().matches.filter((m) => !m.done && !m.postponed && !m.abandoned);
+    const upcoming = pending.filter((m) => m.date >= soon).sort((a, b) => a.date - b.date);
+    if (upcoming.length) return upcoming[0].round;
     return pending.length ? Math.min(...pending.map((m) => m.round)) : null;
   }
 
@@ -569,28 +763,50 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     const root = document.documentElement;
     root.lang = state.lang;
     root.dir = state.lang === "he" ? "rtl" : "ltr";
+    root.dataset.league = state.league;
+    const l = lt();
     document.querySelectorAll("[data-t]").forEach((el) => { const v = s[el.dataset.t]; if (typeof v === "string") el.textContent = v; });
-    $("title").textContent = s.title;
-    document.title = s.title;
+    document.querySelectorAll("[data-lt]").forEach((el) => { const v = l[el.dataset.lt]; if (typeof v === "string") el.textContent = v; });
+    $("title").textContent = l.title;
+    document.title = l.title;
     const alt = $("titleAlt");
-    alt.textContent = s.titleAlt; alt.lang = s.titleAltLang; alt.dir = s.titleAltLang === "he" ? "rtl" : "ltr";
+    alt.textContent = l.titleAlt; alt.lang = s.titleAltLang; alt.dir = s.titleAltLang === "he" ? "rtl" : "ltr";
     $("segGroup").setAttribute("aria-label", s.show);
-    document.querySelector(".banner").setAttribute("aria-label", s.bannerLabel);
+    $("leagueGroup").setAttribute("aria-label", s.leagueLabel);
+    document.querySelectorAll(".league-switch button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.league === state.league));
+    document.querySelector(".banner").setAttribute("aria-label", l.bannerLabel);
+    $("photoBanner").setAttribute("aria-label", s.photoLabel);
     $("team").setAttribute("aria-label", s.teamFilter);
     document.querySelector(".lang").setAttribute("aria-label", s.langLabel);
     document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === state.lang));
     makeFormats();
+    setCrest();
+  }
+
+  function setCrest() {
+    const root = document.documentElement.style, bg = L().bg, c = bg ? bg.url : D().crest;
+    if (c) root.setProperty("--crest", `url("${c}")`); else root.removeProperty("--crest");
+    if (bg) root.setProperty("--crest-size", bg.size); else root.removeProperty("--crest-size");
+    const s = t(), a = (href, text) => `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>`;
+    // Always shown: the photo is the site icon on both sides, not only the Israel background.
+    const P = PHOTOS;
+    $("credit").innerHTML = s.credit({
+      portrait: a(P.portrait.page, s.creditPortrait), portraitBy: esc(P.portrait.author), portraitLic: a(P.portrait.licenseUrl, P.portrait.license),
+      celebrate: a(P.celebrate.page, s.creditCelebrate), celebrateBy: esc(P.celebrate.author), celebrateLic: a(P.celebrate.licenseUrl, P.celebrate.license),
+      pele: a(P.pele.page, s.creditPele),
+    });
   }
 
   function summary() {
     const s = t();
-    if (state.error) { $("played").textContent = s.loadFail; return; }
-    if (!state.loaded) { $("played").textContent = s.loading; return; }
-    const total = state.matches.length;
-    const played = state.matches.filter((m) => m.done).length;
-    $("played").textContent = s.played(played, total) + (state.updated ? " · " + s.updated(fmt.time.format(state.updated)) : "");
+    const d = D();
+    if (d.error) { $("played").textContent = s.loadFail; $("barFill").style.width = "0"; return; }
+    if (!d.loaded) { $("played").textContent = s.loading; $("barFill").style.width = "0"; return; }
+    const total = d.matches.length;
+    const played = d.matches.filter((m) => m.done).length;
+    $("played").textContent = s.played(played, total) + (d.updated ? " · " + s.updated(fmt.time.format(d.updated)) : "");
     $("barFill").style.width = total ? (played / total * 100) + "%" : "0";
-    const teams = [...new Set(state.matches.flatMap((m) => [m.home, m.away]))]
+    const teams = [...new Set(d.matches.flatMap((m) => [m.home, m.away]))]
       .sort((a, b) => teamName(a).localeCompare(teamName(b), state.lang));
     if (state.team && !teams.includes(state.team)) state.team = "";
     $("team").innerHTML = `<option value="">${s.allTeams}</option>` + teams.map((n) => `<option value="${esc(n)}">${esc(teamName(n))}</option>`).join("");
@@ -602,14 +818,15 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     const list = $("list");
     document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.filter === state.filter));
 
-    if (state.error) {
-      list.innerHTML = `<div class="state">${esc(s.error(state.error))}<br><button class="btn" id="retry">${s.retry}</button></div>`;
-      $("retry").addEventListener("click", () => { state.error = null; summary(); render(); start(); });
+    const d = D();
+    if (d.error) {
+      list.innerHTML = `<div class="state">${esc(s.error(d.error))}<br><button class="btn" id="retry">${s.retry}</button></div>`;
+      $("retry").addEventListener("click", () => { d.error = null; summary(); render(); loadLeague(state.league); });
       return;
     }
-    if (!state.loaded) { list.innerHTML = `<div class="state">${s.loading}</div>`; return; }
+    if (!d.loaded) { list.innerHTML = `<div class="state">${s.loading}</div>`; return; }
 
-    let ms = state.matches;
+    let ms = d.matches;
     if (state.team) ms = ms.filter((m) => m.home === state.team || m.away === state.team);
     if (state.filter === "upcoming") ms = ms.filter((m) => !isResult(m));
     if (state.filter === "results") ms = ms.filter(isResult);
@@ -630,7 +847,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
         if (k !== lastDay) { html += `<div class="day">${fmt.day.format(m.date)}</div>`; lastDay = k; }
         html += matchRow(m);
       });
-      const label = r > 26 ? s.playoff(r) : s.round(r);
+      const label = r > L().rounds ? s.playoff(r) : s.round(r);
       return `<section class="round ${r === cur ? "current" : ""}" id="round-${r}"><div class="round-head"><h2 data-next="${esc(s.nextUp)}">${label}</h2><span class="dates">${range}</span></div>${html}</section>`;
     }).join("");
   }
@@ -642,8 +859,8 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   function standings() {
     const rows = new Map();
     const row = (n) => rows.get(n) || rows.set(n, { team: n, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 }).get(n);
-    state.matches.forEach((m) => { row(m.home); row(m.away); });
-    state.matches.filter((m) => m.done && m.hs !== null).forEach((m) => {
+    D().matches.forEach((m) => { row(m.home); row(m.away); });
+    D().matches.filter((m) => m.done && m.hs !== null).forEach((m) => {
       const h = row(m.home), a = row(m.away);
       h.p++; a.p++; h.gf += m.hs; h.ga += m.as; a.gf += m.as; a.ga += m.hs;
       if (m.hs > m.as) { h.w++; a.l++; h.pts += 3; } else if (m.hs < m.as) { a.w++; h.l++; a.pts += 3; } else { h.d++; a.d++; h.pts++; a.pts++; }
@@ -705,7 +922,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     openTeam = team;
     const s = t();
     const lang = state.lang;
-    const any = state.matches.find((m) => m.home === team || m.away === team);
+    const any = D().matches.find((m) => m.home === team || m.away === team);
     const id = any && (any.home === team ? any.homeId : any.awayId);
     const badge = any && (any.home === team ? any.homeBadge : any.awayBadge);
     const table = standings();
@@ -719,8 +936,8 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
       <div class="club-top">
         ${badge ? `<img src="${esc(badge)}/small" alt="" onerror="this.onerror=null;this.src='${esc(badge)}'">` : ""}
         <div class="who">
-          <h2 id="clubName">${esc(teamName(team))}${TEAM_MARKS[team] || ""}</h2>
-          <div class="facts" id="clubFacts">${esc(capText)}</div>
+          <h2 id="clubName">${esc(teamName(team))}${markFor(team)}</h2>
+          <div class="facts" id="clubFacts">${captainHtml(team)}</div>
         </div>
         <button type="button" class="club-close" id="clubClose" aria-label="${s.close}">×</button>
       </div>
@@ -732,7 +949,7 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
           ${stat(`${r.w} · ${r.d} · ${r.l}`, s.record)}
           ${stat(r.gf, s.goalsFor)}
           ${stat(r.ga, s.goalsAgainst)}
-          ${stat(state.title.has(team) ? pctHtml(state.title.get(team)) : "–", s.titleLabel)}
+          ${stat(D().title.has(team) ? pctHtml(D().title.get(team)) : "–", s.titleLabel)}
         </div>
         <div class="row-actions"><button type="button" class="btn" id="clubMatches">${s.showMatches}</button></div>
       </section>
@@ -753,10 +970,10 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     loadTeamInfo(id).then((info) => {
       if (openTeam !== team || state.lang !== lang || !info) return;
       const bits = [];
-      if (info.founded) bits.push(s.founded(info.founded));
-      if (info.stadium) bits.push(venueName(info.stadium));
-      if (capText) bits.push(capText);
-      $("clubFacts").textContent = bits.join(" · ");
+      if (info.founded) bits.push(esc(s.founded(info.founded)));
+      if (info.stadium) bits.push(esc(venueName(info.stadium)));
+      if (capText) bits.push(captainHtml(team));
+      $("clubFacts").innerHTML = bits.join(" · ");
     });
     const h = await loadHistory(team, lang);
     if (openTeam !== team || state.lang !== lang) return;
@@ -782,6 +999,17 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     window.scrollTo(0, y);
   }
 
+  function setLeague(lg) {
+    if (lg === state.league || !LEAGUES[lg]) return;
+    if ($("club").open) $("club").close();
+    state.league = lg; state.team = ""; savePrefs();
+    try { history.replaceState(null, "", "#" + lg); } catch {}
+    applyChrome(); summary(); render();
+    window.scrollTo({ top: 0 });
+    if (!D().loaded && !D().loading) loadLeague(lg);
+  }
+
+  document.querySelectorAll(".league-switch button").forEach((b) => b.addEventListener("click", () => setLeague(b.dataset.league)));
   document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
   document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { state.filter = b.dataset.filter; savePrefs(); render(); }));
   $("team").addEventListener("change", (e) => { state.team = e.target.value; savePrefs(); render(); });
@@ -789,24 +1017,31 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
     const r = nextRound();
     if (r === null) return;
     if (!document.getElementById("round-" + r)) { state.filter = "all"; render(); }
-    document.getElementById("round-" + r)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    const el = document.getElementById("round-" + r);
+    if (!el) return;
+    const y0 = window.scrollY;
+    el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    // Some browsers skip the smooth animation (e.g. in a background tab); jump directly if nothing moved.
+    setTimeout(() => { if (window.scrollY === y0) el.scrollIntoView(); }, 500);
   });
 
-  async function start() {
+  async function loadLeague(lg) {
+    const d = state.data[lg];
+    d.loading = true; d.error = null;
     try {
-      const events = await loadAll();
-      state.matches = events.map(normalize).sort((a, b) => a.round - b.round || a.date - b.date);
-      state.points = tallyPoints(state.matches);
-      state.title = titleChances(state.matches);
-      const beitar = state.matches.find((m) => m.home === "Beitar Jerusalem" || m.away === "Beitar Jerusalem");
-      const crest = beitar && (beitar.home === "Beitar Jerusalem" ? beitar.homeBadge : beitar.awayBadge);
-      if (crest) document.documentElement.style.setProperty("--crest", `url("${crest}")`);
-      state.loaded = true;
+      const events = await loadAll(lg);
+      d.matches = events.map(normalize).sort((a, b) => a.round - b.round || a.date - b.date);
+      d.points = tallyPoints(d.matches);
+      d.title = titleChances(d.matches, lg);
+      const fav = LEAGUES[lg].fav;
+      const fm = d.matches.find((m) => m.home === fav || m.away === fav);
+      d.crest = fm && (fm.home === fav ? fm.homeBadge : fm.awayBadge);
+      d.loaded = true;
     } catch (err) {
-      state.error = err.message;
+      d.error = err.message;
     }
-    summary();
-    render();
+    d.loading = false;
+    if (lg === state.league) { setCrest(); summary(); render(); }
   }
 
   (function confetti() {
@@ -820,6 +1055,6 @@ dialog.club::backdrop { background: rgba(8, 12, 20, .55); }
   applyChrome();
   summary();
   render();
-  start();
+  loadLeague(state.league);
 })();
 </script>
